@@ -1,0 +1,91 @@
+# ===========================
+# Python
+# ===========================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+.venv/
+venv/
+env/
+
+# ===========================
+# uv
+# ===========================
+.python-version
+
+# ===========================
+# Environment Variables
+# ===========================
+.env
+.env.*
+
+# ===========================
+# IDE
+# ===========================
+.vscode/
+.idea/
+
+# ===========================
+# macOS
+# ===========================
+.DS_Store
+
+# ===========================
+# Logs
+# ===========================
+logs/
+*.log
+
+# ===========================
+# Testing
+# ===========================
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# ===========================
+# Jupyter
+# ===========================
+.ipynb_checkpoints/
+
+# ===========================
+# Build
+# ===========================
+build/
+dist/
+*.egg-info/
+
+# ===========================
+# Local Database/Data
+# ===========================
+data/mimic/
+data/schema/
+data/evaluation/
+
+!data/mimic/.gitkeep
+!data/schema/.gitkeep
+!data/evaluation/.gitkeep
+
+# Generated outputs
+outputs/
+artifacts/
+
+# ===========================
+# Docker
+# ===========================
+docker/postgres_data/
+docker/qdrant_data/
+
+# ===========================
+# OS Files
+# ===========================
+Thumbs.db
+
+# ===========================
+# cloned repository
+# ===========================
+mimic-code/
