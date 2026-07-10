@@ -40,11 +40,11 @@ class SchemaEnricher:
         for table in tqdm(schema, desc="Enriching tables"):
 
             print(f"Enriching {table['table']}...")
+            table_text = self._build_table_context(
+                table
+            )
             prompt = SCHEMA_DESCRIPTION_PROMPT.format(
-                table_text=json.dumps(
-                    table,
-                    indent=2,
-                )
+                table_text=table_text
             )
             response = self.llm.generate(prompt)
 
@@ -85,3 +85,40 @@ class SchemaEnricher:
         print(
             f"\nSaved to {self.output_path}"
         )
+
+    def _build_table_context(
+        self,
+        table: dict,
+    ) -> str:
+
+        lines = []
+
+        lines.append(f"Schema: {table['schema_name']}")
+        lines.append(f"Table: {table['table']}")
+
+        lines.append("\nColumns:")
+
+        for column in table["columns"]:
+            lines.append(
+                f"- {column['name']}"
+            )
+
+        if table["primary_keys"]:
+
+            lines.append("\nPrimary Keys:")
+
+            for pk in table["primary_keys"]:
+                lines.append(f"- {pk}")
+
+        if table["foreign_keys"]:
+
+            lines.append("\nRelationships:")
+
+            for fk in table["foreign_keys"]:
+
+                lines.append(
+                    f"- {fk['column']} → "
+                    f"{fk['referred_table']}.{fk['referred_column']}"
+                )
+
+        return "\n".join(lines)

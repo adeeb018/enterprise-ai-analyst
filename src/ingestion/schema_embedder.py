@@ -1,51 +1,31 @@
-from sentence_transformers import SentenceTransformer
-
-from src.ingestion.schema_chunker import SchemaChunker
+from src.embedding.embedding_service import EmbeddingService
 from src.ingestion.schema_models import Chunk, EmbeddedChunk
 
 
 class SchemaEmbedder:
-    def __init__(
-        self,
-        model_name: str = "BAAI/bge-small-en-v1.5",
-    ):
-        print(f"Loading embedding model: {model_name}")
 
-        self.model = SentenceTransformer(model_name)
+    def __init__(self):
 
-    def embed(
-        self,
-        text: str,
-    ) -> list[float]:
-        """
-        Generate an embedding for a single text.
-        """
-        embedding = self.model.encode(
-            text,
-            normalize_embeddings=True,
-        )
-
-        return embedding.tolist()
+        self.embedding_service = EmbeddingService()
 
     def embed_chunks(
         self,
         chunks: list[Chunk],
     ) -> list[EmbeddedChunk]:
-        """
-        Generate embeddings for a list of chunks.
-        """
-        embeddings = self.model.encode(
-            [chunk.text for chunk in chunks],
-            normalize_embeddings=True,
+
+        embeddings = self.embedding_service.embed_batch(
+            [chunk.text for chunk in chunks]
         )
 
         embedded_chunks = []
 
         for chunk, embedding in zip(chunks, embeddings):
+
             embedded_chunks.append(
                 EmbeddedChunk(
                     **chunk.model_dump(),
-                    embedding=embedding.tolist(),
+                    embedding=embedding,
                 )
             )
+
         return embedded_chunks

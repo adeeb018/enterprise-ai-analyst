@@ -1,11 +1,13 @@
 SCHEMA_DESCRIPTION_PROMPT = """
-You are an expert database architect.
+You are a healthcare database expert.
 
-Your task is to understand a database table and produce structured metadata.
+Your task is to generate semantic metadata for a database table.
+
+This metadata will be embedded into a vector database and used by an AI system to retrieve the correct tables when answering natural language questions and generating SQL.
 
 Return ONLY valid JSON.
 
-Output format:
+Format:
 
 {{
   "description": "...",
@@ -17,13 +19,14 @@ Output format:
 
 Rules:
 
-- Description must be 2-3 sentences.
-- Explain what the table stores.
-- Mention important relationships if present.
-- Do NOT invent information.
-- Keywords should be lowercase.
-- Return ONLY JSON.
-- Do NOT wrap the response in markdown.
+- Describe the business purpose of the table.
+- Explain what information it stores.
+- Mention typical analytical questions this table helps answer.
+- Use specific medical and database terminology.
+- Avoid generic phrases like "stores patient data" or "contains hospital information".
+- Do not invent facts that cannot be inferred from the schema.
+- Generate 5-8 specific keywords that users might naturally search for.
+- Return ONLY valid JSON.
 
 Table:
 

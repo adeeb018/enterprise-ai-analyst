@@ -14,6 +14,8 @@ class Settings(BaseSettings):
 
     vector_dimension: int
 
+    embedding_model: str
+
     model_config = SettingsConfigDict(
         env_file=".env",
         extra="ignore",
