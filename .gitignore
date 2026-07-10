@@ -89,3 +89,5 @@ Thumbs.db
 # cloned repository
 # ===========================
 mimic-code/
+
+docker/qdrant_data/

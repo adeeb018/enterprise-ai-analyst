@@ -1,12 +1,13 @@
 import json
 from pathlib import Path
+from src.config.paths import SCHEMA_JSON
 
 from src.retrieval.schema_models import TableInfo
 
 
 class SchemaExporter:
-    def __init__(self, output_path: str = "data/schema/schema.json"):
-        self.output_path = Path(output_path)
+    def __init__(self):
+        self.output_path = SCHEMA_JSON
 
     def export(
         self,
