@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 from src.config.paths import SCHEMA_JSON
 
-from src.retrieval.schema_models import TableInfo
+from src.ingestion.schema_models import TableInfo
 
 
 class SchemaExporter:

@@ -5,7 +5,7 @@ from pydantic import ValidationError
 
 from src.llm.ollama_client import OllamaClient
 from src.llm.prompts import SCHEMA_DESCRIPTION_PROMPT
-from src.retrieval.schema_models import (
+from src.ingestion.schema_models import (
     EnrichmentInfo,
 )
 from tqdm import tqdm

@@ -6,7 +6,7 @@ from qdrant_client.models import (
 
 from src.config.qdrant import client
 from src.config.settings import settings
-from src.retrieval.schema_models import EmbeddedChunk
+from src.ingestion.schema_models import EmbeddedChunk
 
 import hashlib
 

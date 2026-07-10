@@ -1,10 +1,10 @@
-from src.retrieval.schema_models import (
+from src.ingestion.schema_models import (
     ColumnInfo,
     ForeignKeyInfo,
     TableInfo,
 )
 
-from src.retrieval.schema_exporter import SchemaExporter
+from src.ingestion.schema_exporter import SchemaExporter
 
 from sqlalchemy import inspect
 

@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from src.retrieval.schema_models import Chunk, TableInfo
+from src.ingestion.schema_models import Chunk, TableInfo
 from src.config.paths import ENRICHED_SCHEMA_JSON
 
 

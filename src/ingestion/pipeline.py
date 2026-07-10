@@ -4,12 +4,12 @@ from src.config.paths import (
     ENRICHED_SCHEMA_JSON,
     SCHEMA_JSON,
 )
-from src.retrieval.chunker import SchemaChunker
-from src.retrieval.embedder import SchemaEmbedder
-from src.retrieval.schema_enricher import SchemaEnricher
-from src.retrieval.schema_exporter import SchemaExporter
-from src.retrieval.schema_extractor import SchemaExtractor
-from src.retrieval.vector_store import VectorStore
+from src.ingestion.schema_chunker import SchemaChunker
+from src.ingestion.schema_embedder import SchemaEmbedder
+from src.ingestion.schema_enricher import SchemaEnricher
+from src.ingestion.schema_exporter import SchemaExporter
+from src.ingestion.schema_extractor import SchemaExtractor
+from src.ingestion.vector_store import VectorStore
 
 
 class IngestionPipeline:

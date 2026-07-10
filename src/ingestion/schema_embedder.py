@@ -1,7 +1,7 @@
 from sentence_transformers import SentenceTransformer
 
-from src.retrieval.chunker import SchemaChunker
-from src.retrieval.schema_models import Chunk, EmbeddedChunk
+from src.ingestion.schema_chunker import SchemaChunker
+from src.ingestion.schema_models import Chunk, EmbeddedChunk
 
 
 class SchemaEmbedder:
