@@ -1,5 +1,7 @@
 from dataclasses import dataclass, field
 
+from src.ingestion.schema_models import TableInfo
+
 
 @dataclass
 class GraphEdge:
@@ -13,15 +15,12 @@ class GraphEdge:
 
 
 @dataclass
+
 class GraphNode:
+
     id: str
 
-    schema_name: str
-    table: str
-
-    columns: list[str]
-
-    primary_keys: list[str]
+    table_info: TableInfo
 
     incoming: list[GraphEdge] = field(default_factory=list)
 

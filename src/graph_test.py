@@ -1,11 +1,17 @@
+from operator import index
 from pathlib import Path
 import json
 
 from sqlalchemy import table
 
+from src import graph
 from src.config.paths import SCHEMA_JSON
 from src.ingestion.schema_models import TableInfo
 from src.graph.schema_graph import SchemaGraph
+from src.relationship.relationship_index import RelationshipIndex
+from src.relationship.inference_engine import (
+    RelationshipInferenceEngine,
+)
 
 schema_path = SCHEMA_JSON
 
@@ -50,10 +56,64 @@ def main():
     #     "mimiciv_hosp.labevents"
     # )
 
-    graph.print_tree(
-        "mimiciv_hosp.diagnoses_icd",
-        hops=2,
+    # graph.print_tree(
+    #     "mimiciv_hosp.diagnoses_icd",
+    #     hops=2,
+    # )
+
+    index = RelationshipIndex()
+    index.build(graph)
+
+    engine = RelationshipInferenceEngine()
+
+    relationships = engine.infer_relationships(
+        graph,
+        index,
     )
+
+    print("=" * 60)
+    print("INFERRED RELATIONSHIPS")
+    print("=" * 60)
+
+    for relationship in relationships:
+
+        if relationship.source != "mimiciv_hosp.diagnoses_icd":
+            continue
+
+        print()
+
+        print(
+            f"{relationship.source}"
+        )
+
+        print("    ↓")
+
+        print(
+            f"{relationship.target}"
+        )
+
+        print(
+            f"Confidence : {relationship.confidence}"
+        )
+
+        print("Evidence")
+
+        for evidence in relationship.evidence:
+
+            print(
+                f"  - {evidence.rule}"
+                f" ({evidence.score})"
+            )
+
+            print(
+                f"      {evidence.explanation}"
+            )
+
+            if evidence.matched_columns:
+
+                print(
+                    f"      {', '.join(evidence.matched_columns)}"
+                )
 
     # expanded = graph.expand(
     #     [

@@ -38,10 +38,7 @@ class SchemaGraph:
                     table.schema_name,
                     table.table,
                 ),
-                schema_name=table.schema_name,
-                table=table.table,
-                columns=[c.name for c in table.columns],
-                primary_keys=table.primary_keys,
+                table_info=table,
             )
 
             graph.nodes[node.id] = node
@@ -319,7 +316,7 @@ class SchemaGraph:
 
                 print(
                     f"{indent}    └── "
-                    f"{child.node.table}"
+                    f"{child.node.table_info.table} "
                     f" "
                     f"({edge.source_column}"
                     f" -> "
