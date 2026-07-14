@@ -6,10 +6,12 @@ from src.graph.graph_models import GraphNode
 
 class RelationshipIndex:
 
-    # A column appearing in more than this many tables is treated as
-    # a generic linking key (subject_id-like), not a domain identifier.
-    # Tune per schema size; doesn't require knowing column names up front.
+    # Columns that represent row-ordering within a group, not a
+    # real-world entity or vocabulary. Frequency alone won't catch
+    # these — some are rare simply because few tables need ordering.
     MAX_CANDIDATE_FREQUENCY = 5
+    IDENTIFIER_SUFFIXES = ("_id", "_code", "_version")
+    ORDINAL_PATTERNS = ("seq", "_num", "ordinal", "position", "rank")
 
     def __init__(self):
         self.column_index: dict[str, list[GraphNode]] = defaultdict(list)
@@ -47,10 +49,19 @@ class RelationshipIndex:
 
     def get_column_frequency(self, column: str) -> int:
         return self.column_frequency.get(column.lower(), 0)
+    
+    def is_ordinal_column(self, column_name: str) -> bool:
+        column_name = column_name.lower()
+        return any(pattern in column_name for pattern in self.ORDINAL_PATTERNS)
 
     def is_rare_identifier_column(self, column_name: str) -> bool:
-        """A column is worth using for candidate generation if it's
-        not a generic linking key — i.e. it doesn't appear all over
-        the schema. Replaces the old hardcoded name list."""
+        column_name = column_name.lower()
+
+        if self.is_ordinal_column(column_name):
+            return False
+
+        if not column_name.endswith(self.IDENTIFIER_SUFFIXES) and column_name != "itemid":
+            return False
+
         frequency = self.get_column_frequency(column_name)
         return 0 < frequency <= self.MAX_CANDIDATE_FREQUENCY

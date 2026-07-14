@@ -26,13 +26,6 @@ class RelationshipInferenceEngine:
         ]
         self.scoring_engine = ScoringEngine()
 
-        self.rules = rules or [
-            ColumnNameMatchRule(),
-            PrimaryKeyMatchRule(),
-            LookupTableRule(),
-            SharedIdentifierRule(),
-        ]
-
         self.scoring_engine = ScoringEngine()
 
 

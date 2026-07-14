@@ -45,13 +45,10 @@ class ColumnNameMatchRule(BaseRule):
             source_columns.intersection(target_columns)
         )
 
+        matched = [c for c in matched if index.is_rare_identifier_column(c)]
+
         if not matched:
             return None
-
-        score = min(
-            len(matched) * self.SCORE_PER_MATCH,
-            self.MAX_SCORE,
-        )
 
         return RelationshipEvidence(
             rule="column_name_match",
@@ -90,10 +87,7 @@ class PrimaryKeyMatchRule(BaseRule):
         if not matched:
             return None
 
-        score = min(
-            len(matched) * self.SCORE_PER_MATCH,
-            self.MAX_SCORE,
-        )
+        matched = [c for c in matched if index.is_rare_identifier_column(c)]
 
         return RelationshipEvidence(
             rule="primary_key_match",
@@ -113,6 +107,11 @@ class LookupTableRule(BaseRule):
     NO_FK_SCORE = 5
     DESCRIPTION_SCORE = 15
     PRIMARY_KEY_SCORE = 10
+
+    MAX_POSSIBLE_SCORE = (
+        PREFIX_SCORE + COLUMN_COUNT_SCORE + NO_FK_SCORE
+        + DESCRIPTION_SCORE + PRIMARY_KEY_SCORE
+    )  # 50
 
     DESCRIPTION_COLUMNS = {
         "long_title",
@@ -208,9 +207,9 @@ class LookupTableRule(BaseRule):
             rule="lookup_table",
             explanation=", ".join(reasons),
             matched_columns=matched,
-            # metadata={
-            #     "lookup_score": score,
-            # },
+            metadata={
+                "lookup_strength": score / self.MAX_POSSIBLE_SCORE,
+            },
         )
     
 
