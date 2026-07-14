@@ -18,27 +18,8 @@ class GraphEdge:
 
 
 @dataclass
-
 class GraphNode:
-
     id: str
-
     table_info: TableInfo
-
     incoming: list[GraphEdge] = field(default_factory=list)
-
     outgoing: list[GraphEdge] = field(default_factory=list)
-
-@dataclass
-class ExpandedNode:
-    node: GraphNode
-    distance: int
-    parent: str |None = None
-    via_edge: GraphEdge | None = None
-
-
-@dataclass
-class TraversalState:
-    distance: int
-    parent: str | None
-    edge: GraphEdge | None

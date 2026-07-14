@@ -20,8 +20,9 @@ def main():
             break
 
         result = pipeline.retrieve_schema(
-            question
+            text
         )
+
 
 if __name__ == "__main__":
     main()

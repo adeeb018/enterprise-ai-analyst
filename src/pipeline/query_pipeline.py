@@ -1,6 +1,12 @@
+import json
+
+from src.config.paths import ENRICHED_SCHEMA_JSON, GRAPH_JSON
+from src.graph.graph_loader import GraphLoader
+from src.ingestion.schema_models import TableInfo
 from src.pipeline.pipeline_models import PipelineResult
 from src.planner.planner import Planner
 from src.planner.planner_models import QueryPlan
+from src.retrieval.graph_expander import GraphExpander
 from src.retrieval.query_models import RetrievedChunk
 from src.retrieval.retriever import Retriever
 
@@ -11,6 +17,25 @@ class QueryPipeline:
 
         self.planner = Planner()
         self.retriever = Retriever()
+        self.expander = self._build_expander()
+
+    def _build_expander(
+        self,
+    ) -> GraphExpander:
+
+        schema = [
+            TableInfo.model_validate(item)
+            for item in json.loads(
+                ENRICHED_SCHEMA_JSON.read_text()
+            )
+        ]
+
+        graph = GraphLoader().load(
+            graph_path=GRAPH_JSON,
+            schema=schema,
+        )
+
+        return GraphExpander(graph)
 
     def retrieve_schema(
         self,
@@ -60,7 +85,12 @@ class QueryPipeline:
             reverse=True,
         )
 
+        expanded_context = self.expander.expand(
+            retrieved_tables=all_results,
+        )
+
         return PipelineResult(
             plan=plan,
             retrieved_tables=all_results,
+            expanded_context=expanded_context,
         )
