@@ -7,7 +7,6 @@ class RelationshipEvidence:
     Evidence produced by a single inference rule.
     """
     rule: str
-    score: float
     explanation: str
     matched_columns: list[str] = field(default_factory=list)
     metadata: dict = field(default_factory=dict)

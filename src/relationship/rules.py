@@ -54,7 +54,6 @@ class ColumnNameMatchRule(BaseRule):
 
         return RelationshipEvidence(
             rule="column_name_match",
-            score=score,
             explanation=(
                 f"Found {len(matched)} shared column(s)."
             ),
@@ -97,7 +96,6 @@ class PrimaryKeyMatchRule(BaseRule):
 
         return RelationshipEvidence(
             rule="primary_key_match",
-            score=score,
             explanation=(
                 f"Found {len(matched)} shared primary key column(s)."
             ),
@@ -207,12 +205,11 @@ class LookupTableRule(BaseRule):
 
         return RelationshipEvidence(
             rule="lookup_table",
-            score=score,
             explanation=", ".join(reasons),
             matched_columns=matched,
-            metadata={
-                "lookup_score": score,
-            },
+            # metadata={
+            #     "lookup_score": score,
+            # },
         )
     
 class SharedIdentifierRule(BaseRule):
@@ -264,7 +261,6 @@ class SharedIdentifierRule(BaseRule):
 
         return RelationshipEvidence(
             rule="shared_identifier",
-            score=score,
             explanation=(
                 f"Found {len(matched_identifiers)} shared identifier column(s)."
             ),

@@ -102,7 +102,6 @@ def main():
 
             print(
                 f"  - {evidence.rule}"
-                f" ({evidence.score})"
             )
 
             print(

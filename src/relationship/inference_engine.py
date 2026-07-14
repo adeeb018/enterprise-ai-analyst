@@ -1,5 +1,6 @@
 from src.graph.graph_models import GraphNode
 from src.graph.schema_graph import SchemaGraph
+from src.relationship.scoring_engine import ScoringEngine
 
 from .relationship_index import RelationshipIndex
 from .inference_models import InferredRelationship
@@ -25,6 +26,8 @@ class RelationshipInferenceEngine:
             LookupTableRule(),
             SharedIdentifierRule(),
         ]
+
+        self.scoring_engine = ScoringEngine()
 
     def infer_relationships(
         self,
@@ -53,7 +56,6 @@ class RelationshipInferenceEngine:
                     continue
 
                 evidence = []
-                confidence = 0.0
 
                 for rule in self.rules:
 
@@ -63,14 +65,16 @@ class RelationshipInferenceEngine:
                         index,
                     )
 
-                    if result is None:
-                        continue
-
-                    evidence.append(result)
-                    confidence += result.score
+                    if result:
+                        evidence.append(result)
 
                 if not evidence:
                     continue
+
+                confidence = self.scoring_engine.score(
+                    evidence,
+                    index,
+                )
 
                 inferred.append(
                     InferredRelationship(
