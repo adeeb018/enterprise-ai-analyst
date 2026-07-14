@@ -9,16 +9,22 @@ from .rules import (
     ColumnNameMatchRule,
     PrimaryKeyMatchRule,
     LookupTableRule,
+    SemanticSimilarityRule,
     SharedIdentifierRule,
 )
 
 
 class RelationshipInferenceEngine:
 
-    def __init__(
-        self,
-        rules: list[BaseRule] | None = None,
-    ):
+    def __init__(self, rules: list[BaseRule] | None = None):
+        self.rules = rules or [
+            ColumnNameMatchRule(),
+            PrimaryKeyMatchRule(),
+            LookupTableRule(),
+            SharedIdentifierRule(),
+            SemanticSimilarityRule(),
+        ]
+        self.scoring_engine = ScoringEngine()
 
         self.rules = rules or [
             ColumnNameMatchRule(),
@@ -29,6 +35,7 @@ class RelationshipInferenceEngine:
 
         self.scoring_engine = ScoringEngine()
 
+
     def infer_relationships(
         self,
         graph: SchemaGraph,
@@ -37,44 +44,29 @@ class RelationshipInferenceEngine:
 
         inferred: list[InferredRelationship] = []
 
-        #
-        # Evaluate every table
-        #
         for source in graph.nodes.values():
-
-            candidates = self._find_candidate_tables(
-                source,
-                index,
-            )
+            candidates = self._find_candidate_tables(source, index)
 
             for target in candidates:
-
-                #
-                # Don't compare a table with itself
-                #
                 if source.id == target.id:
                     continue
 
+                # Physical FK already expresses this — don't re-infer it
+                if graph.has_edge(source.id, target.id):
+                    continue
+                if graph.has_edge(target.id, source.id):
+                    continue
+
                 evidence = []
-
                 for rule in self.rules:
-
-                    result = rule.evaluate(
-                        source,
-                        target,
-                        index,
-                    )
-
+                    result = rule.evaluate(source, target, index)
                     if result:
                         evidence.append(result)
 
                 if not evidence:
                     continue
 
-                confidence = self.scoring_engine.score(
-                    evidence,
-                    index,
-                )
+                confidence = self.scoring_engine.score(evidence, index)
 
                 inferred.append(
                     InferredRelationship(
@@ -86,6 +78,7 @@ class RelationshipInferenceEngine:
                 )
 
         return inferred
+    
 
     def _find_candidate_tables(
         self,
@@ -96,18 +89,12 @@ class RelationshipInferenceEngine:
         candidates = {}
 
         for column in source.table_info.columns:
-
             column_name = column.name.lower()
 
-            #
-            # Only identifier columns
-            #
-            if not index.is_identifier_column(column_name):
+            if not index.is_rare_identifier_column(column_name):
                 continue
 
-            for node in index.find_tables_with_column(
-                column_name
-            ):
+            for node in index.find_tables_with_column(column_name):
                 candidates[node.id] = node
 
         return list(candidates.values())

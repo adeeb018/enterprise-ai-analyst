@@ -3,6 +3,7 @@ from pathlib import Path
 
 from pydantic import ValidationError
 
+from src.embedding.embedding_service import EmbeddingService
 from src.llm.ollama_client import OllamaClient
 from src.llm.prompts import SCHEMA_DESCRIPTION_PROMPT
 from src.ingestion.schema_models import (
@@ -25,6 +26,7 @@ class SchemaEnricher:
         self.output_path = ENRICHED_SCHEMA_JSON
 
         self.llm = OllamaClient()
+        self.embedding_service = EmbeddingService()
 
     def enrich(self):
 
@@ -62,6 +64,13 @@ class SchemaEnricher:
 
             table["description"] = enrichment.description
             table["keywords"] = enrichment.keywords
+
+            if enrichment.description:
+                table["description_embedding"] = self.embedding_service.embed_batch(
+                    [enrichment.description]
+                )[0]
+            else:
+                table["description_embedding"] = None
 
             enriched.append(table)
 

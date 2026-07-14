@@ -5,7 +5,7 @@ import json
 from sqlalchemy import table
 
 from src import graph
-from src.config.paths import SCHEMA_JSON
+from src.config.paths import SCHEMA_JSON,ENRICHED_SCHEMA_JSON
 from src.ingestion.schema_models import TableInfo
 from src.graph.schema_graph import SchemaGraph
 from src.relationship.relationship_index import RelationshipIndex
@@ -13,7 +13,7 @@ from src.relationship.inference_engine import (
     RelationshipInferenceEngine,
 )
 
-schema_path = SCHEMA_JSON
+schema_path = ENRICHED_SCHEMA_JSON
 
 def print_neighbors(graph, table_id):
 

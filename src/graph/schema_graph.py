@@ -329,3 +329,10 @@ class SchemaGraph:
                 children,
                 level + 1,
             )
+
+
+    def has_edge(self, source_id: str, target_id: str) -> bool:
+        node = self.nodes.get(source_id)
+        if node is None:
+            return False
+        return any(edge.target == target_id for edge in node.outgoing)

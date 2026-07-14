@@ -30,6 +30,8 @@ class TableInfo(BaseModel):
     primary_keys: list[str] = Field(default_factory=list)
     foreign_keys: list[ForeignKeyInfo] = Field(default_factory=list)
 
+    description_embedding: list[float] | None = None
+
 
 class Chunk(BaseModel):
     id: str

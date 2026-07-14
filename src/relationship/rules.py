@@ -4,6 +4,7 @@ from src.graph.graph_models import GraphNode
 from src.relationship.relationship_index import RelationshipIndex
 
 from .inference_models import RelationshipEvidence
+import math
 
 
 class BaseRule(ABC):
@@ -212,6 +213,7 @@ class LookupTableRule(BaseRule):
             # },
         )
     
+
 class SharedIdentifierRule(BaseRule):
 
     SCORE_PER_IDENTIFIER = 20
@@ -226,30 +228,19 @@ class SharedIdentifierRule(BaseRule):
 
         matched_identifiers = []
 
-        #
-        # Look at identifier columns in source
-        #
         for column in source.table_info.columns:
-
             name = column.name.lower()
 
-            if not index.is_identifier_column(name):
+            # Skip generic linking keys — they don't discriminate
+            if not index.is_rare_identifier_column(name):
                 continue
 
-            #
-            # Which tables contain this identifier?
-            #
             candidate_tables = index.find_tables_with_column(name)
 
-            if any(
-                node.id == target.id
-                for node in candidate_tables
-            ):
+            if any(node.id == target.id for node in candidate_tables):
                 matched_identifiers.append(name)
 
-        matched_identifiers = sorted(
-            set(matched_identifiers)
-        )
+        matched_identifiers = sorted(set(matched_identifiers))
 
         if not matched_identifiers:
             return None
@@ -261,11 +252,45 @@ class SharedIdentifierRule(BaseRule):
 
         return RelationshipEvidence(
             rule="shared_identifier",
-            explanation=(
-                f"Found {len(matched_identifiers)} shared identifier column(s)."
-            ),
+            explanation=f"Found {len(matched_identifiers)} shared rare identifier column(s).",
             matched_columns=matched_identifiers,
-            metadata={
-                "shared_identifiers": matched_identifiers,
-            },
+            metadata={"shared_identifiers": matched_identifiers},
         )
+
+
+class SemanticSimilarityRule(BaseRule):
+
+    MIN_SIMILARITY = 0.55  # below this, don't even attach evidence
+
+    def evaluate(
+        self,
+        source: GraphNode,
+        target: GraphNode,
+        index: RelationshipIndex,
+    ) -> RelationshipEvidence | None:
+
+        source_vec = source.table_info.description_embedding
+        target_vec = target.table_info.description_embedding
+
+        if not source_vec or not target_vec:
+            return None
+
+        similarity = self._cosine_similarity(source_vec, target_vec)
+
+        if similarity < self.MIN_SIMILARITY:
+            return None
+
+        return RelationshipEvidence(
+            rule="semantic_similarity",
+            explanation=f"Table descriptions are semantically similar ({similarity:.2f}).",
+            metadata={"similarity": similarity},
+        )
+
+    @staticmethod
+    def _cosine_similarity(a: list[float], b: list[float]) -> float:
+        dot = sum(x * y for x, y in zip(a, b))
+        norm_a = math.sqrt(sum(x * x for x in a))
+        norm_b = math.sqrt(sum(y * y for y in b))
+        if norm_a == 0 or norm_b == 0:
+            return 0.0
+        return dot / (norm_a * norm_b)
