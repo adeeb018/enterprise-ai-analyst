@@ -5,7 +5,10 @@ import json
 from sqlalchemy import table
 
 from src import graph
-from src.config.paths import SCHEMA_JSON,ENRICHED_SCHEMA_JSON
+from src.config.paths import GRAPH_JSON, SCHEMA_JSON,ENRICHED_SCHEMA_JSON
+from src.graph.graph_enricher import GraphEnricher
+from src.graph.graph_exporter import GraphExporter
+from src.graph.graph_loader import GraphLoader
 from src.ingestion.schema_models import TableInfo
 from src.graph.schema_graph import SchemaGraph
 from src.relationship.relationship_index import RelationshipIndex
@@ -39,28 +42,6 @@ def main():
 
     graph = SchemaGraph.build(schema)
 
-    # print_neighbors(
-    #     graph,
-    #     "mimiciv_hosp.admissions"
-    # )
-    # print_neighbors(
-    #     graph,
-    #     "mimiciv_hosp.patients"
-    # )
-    # print_neighbors(
-    #     graph,
-    #     "mimiciv_hosp.diagnoses_icd"
-    # )
-    # print_neighbors(
-    #     graph,
-    #     "mimiciv_hosp.labevents"
-    # )
-
-    # graph.print_tree(
-    #     "mimiciv_hosp.diagnoses_icd",
-    #     hops=2,
-    # )
-
     index = RelationshipIndex()
     index.build(graph)
 
@@ -71,124 +52,38 @@ def main():
         index,
     )
 
-    print("=" * 60)
-    print("INFERRED RELATIONSHIPS")
-    print("=" * 60)
 
-    for relationship in relationships:
+    exporter = GraphExporter()
+    enricher = GraphEnricher()
 
-        if relationship.source != "mimiciv_hosp.diagnoses_icd":
-            continue
+    graph = enricher.enrich(graph, relationships)
 
-        print()
+    exporter.export(
+        graph,
+        GRAPH_JSON,
+    )
 
-        print(
-            f"{relationship.source}"
-        )
+    loader = GraphLoader()
 
-        print("    ↓")
+    loaded = loader.load(
+        GRAPH_JSON,
+        schema=schema
+    )
 
-        print(
-            f"{relationship.target}"
-        )
+    print(len(graph.nodes))
+    print(len(loaded.nodes))
 
-        print(
-            f"Confidence : {relationship.confidence}"
-        )
+    node = loaded.get_node(
+        "mimiciv_hosp.diagnoses_icd"
+    )
 
-        print("Evidence")
+    for edge in node.outgoing:
 
-        for evidence in relationship.evidence:
+        print(edge.relationship)
 
-            print(
-                f"  - {evidence.rule}"
-            )
+        print(edge.target)
 
-            print(
-                f"      {evidence.explanation}"
-            )
-
-            if evidence.matched_columns:
-
-                print(
-                    f"      {', '.join(evidence.matched_columns)}"
-                )
-
-    # expanded = graph.expand(
-    #     [
-    #         "mimiciv_hosp.admissions",
-    #     ],
-    #     hops=3,
-    # )
-
-    # print("=" * 60)
-    # print("EXPANSION")
-    # print("=" * 60)
-
-    # for item in expanded:
-
-    #     print(
-    #         f"{item.distance} | {item.node.id}"
-    #     )
-
-    #     if item.parent:
-    #         print(
-    #             f"    Parent : {item.parent}"
-    #         )
-
-    #     if item.via_edge:
-
-    #         edge = item.via_edge
-
-    #         print(
-    #             "    Join   : "
-    #             f"{edge.source}.{edge.source_column}"
-    #             f" -> "
-    #             f"{edge.target}.{edge.target_column}"
-    #         )
-
-    #         print(item.node.id)
-
-    #         print(item.via_edge)
-
-    # print("=" * 60)
-    # print("GRAPH SUMMARY")
-    # print("=" * 60)
-
-    # print(f"Nodes : {len(graph.nodes)}")
-
-    # edge_count = sum(
-    #     len(node.outgoing)
-    #     for node in graph.nodes.values()
-    # )
-
-    # print(f"Edges : {edge_count}")
-    # node = graph.nodes["mimiciv_hosp.diagnoses_icd"]
-
-    # print("=" * 60)
-    # print(node.id)
-
-    # print("\nOutgoing")
-
-    # for edge in node.outgoing:
-
-    #     print(
-    #         f"{edge.source_column}"
-    #         f" --> "
-    #         f"{edge.target}"
-    #         f".{edge.target_column}"
-    #     )
-
-    # print("\nIncoming")
-
-    # for edge in node.incoming:
-
-    #     print(
-    #         f"{edge.source}"
-    #         f".{edge.source_column}"
-    #         f" --> "
-    #         f"{edge.target_column}"
-    #     )
+        print(edge.confidence)
 
 if __name__ == "__main__":
     main()

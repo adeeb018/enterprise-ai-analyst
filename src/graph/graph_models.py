@@ -8,10 +8,13 @@ class GraphEdge:
     source: str
     target: str
 
-    source_column: str
-    target_column: str
+    source_column: str | None = None
+    target_column: str | None = None
 
     relationship: str = "foreign_key"
+
+    confidence: float = 1.0
+    evidence: list[str] = field(default_factory=list)
 
 
 @dataclass

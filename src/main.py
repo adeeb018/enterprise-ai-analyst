@@ -23,26 +23,5 @@ def main():
             question
         )
 
-        # print("\nQuery Plan")
-        # print("=" * 60)
-        # print(
-        #     result.plan.model_dump_json(
-        #         indent=2,
-        #     )
-        # )
-        # print("\nRetrieved Tables")
-        # print("=" * 60)
-        # for table in result.retrieved_tables:
-        #     print(
-        #         f"{table.score:.4f}"
-        #     )
-        #     print(
-        #         f"{table.schema_name}.{table.table}"
-        #     )
-        #     print(
-        #         f"{', '.join(table.keywords)}"
-        #     )
-        #     print("-" * 60)
-
 if __name__ == "__main__":
     main()

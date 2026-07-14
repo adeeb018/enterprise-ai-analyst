@@ -65,6 +65,7 @@ dist/
 data/mimic/
 data/schema/
 data/evaluation/
+data/
 
 !data/mimic/.gitkeep
 !data/schema/.gitkeep

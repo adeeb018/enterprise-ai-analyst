@@ -2,8 +2,10 @@ from pathlib import Path
 
 from src.config.paths import (
     ENRICHED_SCHEMA_JSON,
+    GRAPH_JSON,
     SCHEMA_JSON,
 )
+from src.ingestion.graph_processor import GraphProcessor
 from src.ingestion.schema_chunker import SchemaChunker
 from src.ingestion.schema_embedder import SchemaEmbedder
 from src.ingestion.schema_enricher import SchemaEnricher
@@ -35,6 +37,16 @@ class IngestionPipeline:
 
         else:
             print("✓ Reusing enriched_schema.json")
+
+        if not GRAPH_JSON.exists():
+
+            print("Building schema graph...")
+
+            GraphProcessor().process()
+
+        else:
+            print("✓ Reusing graph.json")
+        
 
         print("Creating chunks...")
 

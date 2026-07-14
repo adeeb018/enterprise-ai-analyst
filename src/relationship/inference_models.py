@@ -16,4 +16,5 @@ class InferredRelationship:
     source: str
     target: str
     confidence: float
+    relationship: str = "logical_lookup"
     evidence: list[RelationshipEvidence] = field(default_factory=list)

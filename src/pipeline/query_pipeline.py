@@ -15,7 +15,7 @@ class QueryPipeline:
     def retrieve_schema(
         self,
         question: str,
-        top_k: int = 10,
+        top_k: int = 4,
     ) -> PipelineResult:
 
         plan = self.planner.plan(question)
