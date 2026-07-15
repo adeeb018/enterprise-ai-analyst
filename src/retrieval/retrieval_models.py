@@ -10,6 +10,7 @@ class ExpandedNode:
     distance: int
     source_seed: str 
 
+    retrieval_score: float | None = None
     parent: str |None = None
     via_edge: GraphEdge | None = None
 

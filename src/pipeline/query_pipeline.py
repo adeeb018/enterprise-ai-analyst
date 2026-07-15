@@ -6,6 +6,7 @@ from src.ingestion.schema_models import TableInfo
 from src.pipeline.pipeline_models import PipelineResult
 from src.planner.planner import Planner
 from src.planner.planner_models import QueryPlan
+from src.retrieval.context_ranker import ContextRanker
 from src.retrieval.graph_expander import GraphExpander
 from src.retrieval.query_models import RetrievedChunk
 from src.retrieval.retriever import Retriever
@@ -18,6 +19,7 @@ class QueryPipeline:
         self.planner = Planner()
         self.retriever = Retriever()
         self.expander = self._build_expander()
+        self.ranker = ContextRanker()
 
     def _build_expander(
         self,
@@ -89,8 +91,13 @@ class QueryPipeline:
             retrieved_tables=all_results,
         )
 
+        ranked_context = self.ranker.rank(
+            expanded_context
+        )
+
         return PipelineResult(
             plan=plan,
             retrieved_tables=all_results,
             expanded_context=expanded_context,
+            ranked_context= ranked_context
         )

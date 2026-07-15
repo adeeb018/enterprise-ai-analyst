@@ -76,6 +76,7 @@ class GraphExpander:
                 parent=None,
                 via_edge=None,
                 source_seed=table_id,
+                retrieval_score=retrieved.score,
             )
 
             expanded[table_id] = expanded_node

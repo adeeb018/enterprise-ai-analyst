@@ -23,6 +23,21 @@ def main():
             text
         )
 
+        print("\n" + "=" * 80)
+        print("RANKED TABLES")
+        print("=" * 80)
+
+        for table in result.ranked_context.ranked_tables:
+
+            print(
+                f"{table.score:.3f}"
+                f"  "
+                f"{table.node.node.id}"
+            )
+
+            for evidence in table.evidence:
+                print(f"      • {evidence}")
+
 
 if __name__ == "__main__":
     main()
