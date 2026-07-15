@@ -7,3 +7,6 @@ class RetrievedChunk(BaseModel):
     table: str
     text: str
     keywords: list[str]
+
+    source: str          # semantic | value
+    matched_value: str | None = None

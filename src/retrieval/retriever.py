@@ -43,6 +43,30 @@ class Retriever:
         limit: int = 5,
     ) -> list[RetrievedChunk]:
 
+        semantic = self.semantic_retrieve(
+            question,
+            limit,
+        )
+
+        value = self.value_retrieve(
+            question,
+            limit,
+        )
+
+        return self.merge_results(
+            semantic,
+            value,
+        )
+
+
+    
+
+    def semantic_retrieve(
+        self,
+        question: str,
+        limit: int = 5,
+    ) -> list[RetrievedChunk]:
+            
         vector = self.embed_query(
             question
         )
@@ -68,7 +92,23 @@ class Retriever:
                         "keywords",
                         [],
                     ),
+                    source="semantic",
                 )
             )
 
         return results
+    
+    def value_retrieve(
+        self,
+        question: str,
+        limit: int = 5,
+    ) -> list[RetrievedChunk]:
+
+        return []
+    
+    def merge_results(
+    self,
+    semantic: list[RetrievedChunk],
+    value: list[RetrievedChunk],
+) -> list[RetrievedChunk]:
+        return semantic
