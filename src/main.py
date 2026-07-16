@@ -3,8 +3,6 @@ from src.retrieval.retriever import Retriever
 
 from src.pipeline.query_pipeline import QueryPipeline
 
-retriever = Retriever()
-
 text = "Show diabetic patients admitted to ICU"
 
 def main():

@@ -12,6 +12,8 @@ class Settings(BaseSettings):
     qdrant_port: int
     qdrant_collection: str
 
+    qdrant_value_collection: str
+
     vector_dimension: int
 
     embedding_model: str

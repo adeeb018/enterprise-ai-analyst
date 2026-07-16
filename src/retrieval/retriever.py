@@ -1,114 +1,35 @@
-from src.config.settings import settings
-from src.embedding.embedding_service import EmbeddingService
-from src.retrieval.query_models import RetrievedChunk
-from src.config.qdrant import client
+from .semantic_retriever import SemanticRetriever
+from .value_retriever import ValueRetriever
+from .retrieval_merger import RetrievalMerger
 
 
 class Retriever:
 
     def __init__(self):
 
-        self.client = client
+        self.semantic = SemanticRetriever()
 
-        self.collection = settings.qdrant_collection
+        self.value = ValueRetriever()
 
-        self.embedding_service = EmbeddingService()
+        self.merger = RetrievalMerger()
 
-    def embed_query(
-            self,
-            question: str,
-    ) -> list[float]:
-
-        return self.embedding_service.embed(
-            question
-        )
-        
-    def search(
-        self,
-        vector: list[float],
-        limit: int = 5,
-    ):
-
-        response = self.client.query_points(
-            collection_name=self.collection,
-            query=vector,
-            limit=limit,
-        )
-
-        return response.points
-    
     def retrieve(
         self,
         question: str,
         limit: int = 5,
-    ) -> list[RetrievedChunk]:
+    ):
 
-        semantic = self.semantic_retrieve(
+        semantic = self.semantic.retrieve(
             question,
             limit,
         )
 
-        value = self.value_retrieve(
+        value = self.value.retrieve(
             question,
             limit,
         )
 
-        return self.merge_results(
+        return self.merger.merge(
             semantic,
             value,
         )
-
-
-    
-
-    def semantic_retrieve(
-        self,
-        question: str,
-        limit: int = 5,
-    ) -> list[RetrievedChunk]:
-            
-        vector = self.embed_query(
-            question
-        )
-
-        points = self.search(
-            vector,
-            limit,
-        )
-
-        results = []
-
-        for point in points:
-
-            payload = point.payload
-
-            results.append(
-                RetrievedChunk(
-                    score=point.score,
-                    schema_name=payload["schema"],
-                    table=payload["table"],
-                    text=payload["text"],
-                    keywords=payload.get(
-                        "keywords",
-                        [],
-                    ),
-                    source="semantic",
-                )
-            )
-
-        return results
-    
-    def value_retrieve(
-        self,
-        question: str,
-        limit: int = 5,
-    ) -> list[RetrievedChunk]:
-
-        return []
-    
-    def merge_results(
-    self,
-    semantic: list[RetrievedChunk],
-    value: list[RetrievedChunk],
-) -> list[RetrievedChunk]:
-        return semantic
