@@ -2,7 +2,7 @@ from pydantic import BaseModel
 
 from src.retrieval.query_models import RetrievedChunk
 from src.planner.planner_models import QueryPlan
-from src.retrieval.ranking_models import RankedContext
+from src.retrieval.ranking.ranking_models import RankedContext
 from src.retrieval.retrieval_models import ExpandedContext
 
 

@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from src.retrieval.ranking_models import (
+from src.retrieval.ranking.ranking_models import (
     RankingScore,
     RankedTable,
 )

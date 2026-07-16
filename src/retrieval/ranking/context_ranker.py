@@ -1,5 +1,5 @@
-from src.retrieval.ranking_engine import RankingEngine
-from src.retrieval.ranking_models import (
+from src.retrieval.ranking.ranking_engine import RankingEngine
+from src.retrieval.ranking.ranking_models import (
     RankedContext,
     RankedTable,
 )

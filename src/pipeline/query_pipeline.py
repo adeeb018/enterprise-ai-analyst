@@ -6,7 +6,7 @@ from src.ingestion.schema_models import TableInfo
 from src.pipeline.pipeline_models import PipelineResult
 from src.planner.planner import Planner
 from src.planner.planner_models import QueryPlan
-from src.retrieval.context_ranker import ContextRanker
+from src.retrieval.ranking.context_ranker import ContextRanker
 from src.retrieval.graph_expander import GraphExpander
 from src.retrieval.query_models import RetrievedChunk
 from src.retrieval.retriever import Retriever

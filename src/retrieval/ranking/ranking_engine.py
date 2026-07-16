@@ -1,7 +1,7 @@
-from src.retrieval.ranking_models import (
+from src.retrieval.ranking.ranking_models import (
     RankedTable,
 )
-from src.retrieval.ranking_rules import (
+from src.retrieval.ranking.ranking_rules import (
     BaseRankingRule,
     SemanticScoreRule,
     DistanceRule,

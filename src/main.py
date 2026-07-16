@@ -1,6 +1,3 @@
-from src.planner.planner import Planner
-from src.retrieval.retriever import Retriever
-
 from src.pipeline.query_pipeline import QueryPipeline
 
 text = "Show diabetic patients admitted to ICU"
