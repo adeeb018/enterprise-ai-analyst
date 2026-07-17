@@ -42,12 +42,9 @@ class DistanceRule(BaseRankingRule):
     ) -> RankingScore:
 
         distance = table.node.distance
-
-        score = 1 / (distance + 1)
-
+    
+        penalty = -0.05 * distance  # small nudge, not a dominant factor
         return RankingScore(
-            score=score,
-            evidence=[
-                f"Graph Distance ({distance})"
-            ],
+            score=penalty,
+            evidence=[f"Graph Distance ({distance})"],
         )

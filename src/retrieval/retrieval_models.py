@@ -23,6 +23,7 @@ class TraversalState:
 
     parent: str | None
     via_edge: GraphEdge | None
+    score: float = 0.0
 
 
 @dataclass
