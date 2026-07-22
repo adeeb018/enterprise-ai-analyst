@@ -2,6 +2,7 @@ import json
 
 from src.config.paths import ENRICHED_SCHEMA_JSON, GRAPH_JSON
 from src.graph.graph_loader import GraphLoader
+from src.graph.schema_graph import SchemaGraph
 from src.ingestion.schema_models import TableInfo
 from src.pipeline.pipeline_models import PipelineResult
 from src.planner.planner import Planner
@@ -18,12 +19,14 @@ class QueryPipeline:
 
         self.planner = Planner()
         self.retriever = Retriever()
-        self.expander = self._build_expander()
-        self.ranker = ContextRanker()
+        self.graph = self._get_graph()
+        self.expander = GraphExpander(graph=self.graph)
+        self.ranker = ContextRanker(graph=self.graph)
 
-    def _build_expander(
+
+    def _get_graph(
         self,
-    ) -> GraphExpander:
+    ) -> SchemaGraph:
 
         schema = [
             TableInfo.model_validate(item)
@@ -37,12 +40,30 @@ class QueryPipeline:
             schema=schema,
         )
 
-        return GraphExpander(graph)
+        return graph
+
+    # def _build_expander(
+    #     self,
+    # ) -> GraphExpander:
+
+    #     schema = [
+    #         TableInfo.model_validate(item)
+    #         for item in json.loads(
+    #             ENRICHED_SCHEMA_JSON.read_text()
+    #         )
+    #     ]
+
+    #     graph = GraphLoader().load(
+    #         graph_path=GRAPH_JSON,
+    #         schema=schema,
+    #     )
+
+    #     return GraphExpander(graph)
 
     def retrieve_schema(
         self,
         question: str,
-        top_k: int = 4,
+        top_k: int = 2,
     ) -> PipelineResult:
 
         plan = self.planner.plan(question)

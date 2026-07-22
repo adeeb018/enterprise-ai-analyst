@@ -37,49 +37,51 @@ class SemanticScoreRule(BaseRankingRule):
                 f"Semantic Retrieval ({semantic:.3f})"
             ],
         )
-    
+#worked one
+# class DistanceRule(BaseRankingRule):
+#     def score(self, table: RankedTable, query: str) -> RankingScore:
+#         distance = table.node.distance
+#         role = getattr(table.node.node, "role", TableRole.FACT)
+        
+#         # Seed tables found directly by semantic search (distance = 0)
+#         if distance == 0:
+#             return RankingScore(score=0.0, evidence=[])
+            
+#         # 1-hop graph neighbors: MASSIVE reward because they are actual join paths!
+#         if distance == 1 and role in [TableRole.FACT, TableRole.DIMENSION]:
+#             return RankingScore(
+#                 score=0.12, 
+#                 evidence=[f"Direct graph join path (1-hop {role}) (+0.12)"]
+#             )
+            
+#         penalty = -0.08 * distance
+#         return RankingScore(score=penalty, evidence=[f"Graph distance {distance} penalty ({penalty})"])
+
 class DistanceRule(BaseRankingRule):
-
     def score(self, table: RankedTable, query: str) -> RankingScore:
-
         distance = table.node.distance
         role = getattr(table.node.node, "role", TableRole.FACT)
+        semantic = table.node.retrieval_score or 0.0
         
+        # Seed tables found directly by semantic search (distance = 0)
         if distance == 0:
             return RankingScore(score=0.0, evidence=[])
             
-        # Lenient penalty for 1-hop fact/dimension tables
+        # 1-hop graph neighbors: Gated by semantic relevance to prevent super-hub noise
         if distance == 1 and role in [TableRole.FACT, TableRole.DIMENSION]:
-            return RankingScore(score=-0.02, evidence=[f"Graph distance {distance} (Lenient for {role})"])
+            if semantic >= 0.35: 
+                return RankingScore(
+                    score=0.12, 
+                    evidence=[f"Gated 1-hop join path (1-hop {role}) (+0.12)"]
+                )
+            else:
+                return RankingScore(
+                    score=0.02, 
+                    evidence=[f"Low-relevance 1-hop connection suppressed (+0.02)"]
+                )
             
         penalty = -0.08 * distance
         return RankingScore(score=penalty, evidence=[f"Graph distance {distance} penalty ({penalty})"])
-    
-# class TableRoleRule(BaseRankingRule):
-#     """
-#     Adjusts scores based on whether a table is a dictionary/lookup table 
-#     or a core fact/dimension table.
-#     """
-#     LOOKUP_PENALTY = -0.15
-#     FACT_BONUS = 0.10
-
-#     def score(self, table: RankedTable, query: str) -> RankingScore:
-#         # Safely access role through the nested GraphNode: table.node.node.role
-#         graph_node = getattr(table.node, "node", None)
-#         role = getattr(graph_node, "role", TableRole.FACT)
-        
-#         if role == TableRole.LOOKUP:
-#             return RankingScore(
-#                 score=self.LOOKUP_PENALTY,
-#                 evidence=["Lookup table supporting role (-0.15)"]
-#             )
-#         elif role in [TableRole.FACT, TableRole.DIMENSION]:
-#             return RankingScore(
-#                 score=self.FACT_BONUS,
-#                 evidence=["Fact/Dimension primary table (+0.10)"]
-#             )
-            
-#         return RankingScore(score=0.0, evidence=[])
 
 LOOKUP_INTENT_PATTERNS = [
     r"\blook ?up\b",
@@ -96,27 +98,28 @@ def detect_lookup_intent(query: str) -> bool:
 
 
 class TableRoleRule(BaseRankingRule):
-    LOOKUP_PENALTY = -0.15
-    LOOKUP_BONUS = 0.15
-    FACT_BONUS = 0.10
-
     def score(self, table: RankedTable, query: str) -> RankingScore:
-        # Access the underlying GraphNode from ExpandedNode
-        graph_node = getattr(table.node, "node", None)
+        graph_node = table.node.node
         role = getattr(graph_node, "role", TableRole.FACT)
+        semantic = table.node.retrieval_score or 0.0
+        distance = table.node.distance
 
         if role == TableRole.LOOKUP:
-            # Use pre-computed lookup strength if available, default to 1.0
-            strength = getattr(graph_node, "lookup_strength", 1.0)
+            # EXCEPTION: If it's a direct semantic hit with a high score, let it in!
+            if distance == 0 and semantic >= 0.72:
+                return RankingScore(
+                    score=0.15, 
+                    evidence=[f"Direct high-confidence lookup match ({semantic:.3f}) (+0.15)"]
+                )
+            
             is_lookup_query = detect_lookup_intent(query)
-            
-            base = self.LOOKUP_BONUS if is_lookup_query else self.LOOKUP_PENALTY
-            adjusted = base * strength
-            
-            label = "Lookup intent matched" if is_lookup_query else "Supporting role"
-            return RankingScore(score=adjusted, evidence=[f"{label} ({adjusted:+.3f})"])
+            if not is_lookup_query:
+                return RankingScore(score=-0.30, evidence=["Lookup table penalized for analytical query (-0.30)"])
+            else:
+                return RankingScore(score=0.25, evidence=["Lookup intent matched (+0.25)"])
 
         if role in (TableRole.FACT, TableRole.DIMENSION):
-            return RankingScore(score=self.FACT_BONUS, evidence=["Fact/dimension table (+0.10)"])
+            boost = 0.15 + (semantic * 0.10)
+            return RankingScore(score=boost, evidence=[f"Core Fact/Dimension multiplier (+{boost:.3f})"])
 
         return RankingScore(score=0.0, evidence=[])
