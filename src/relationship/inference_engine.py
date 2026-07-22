@@ -6,7 +6,6 @@ from .relationship_index import RelationshipIndex
 from .inference_models import InferredRelationship
 from .rules import (
     BaseRule,
-    ColumnNameMatchRule,
     PrimaryKeyMatchRule,
     LookupTableRule,
     SemanticSimilarityRule,
@@ -18,15 +17,14 @@ class RelationshipInferenceEngine:
 
     def __init__(self, rules: list[BaseRule] | None = None):
         self.rules = rules or [
-            ColumnNameMatchRule(),
             PrimaryKeyMatchRule(),
             LookupTableRule(),
             SharedIdentifierRule(),
             SemanticSimilarityRule(),
         ]
         self.scoring_engine = ScoringEngine()
-
-        self.scoring_engine = ScoringEngine()
+        # Instantiate a helper rule instance to check lookup characteristics
+        self.lookup_rule_checker = LookupTableRule()
 
 
     def infer_relationships(
@@ -49,6 +47,16 @@ class RelationshipInferenceEngine:
                     continue
                 if graph.has_edge(target.id, source.id):
                     continue
+
+                # --- GENERALIZED LOOKUP VS LOOKUP HEURISTIC ---
+                # Check if both tables look like lookup/dictionary tables.
+                # Dictionary tables are referenced BY fact tables, not each other.
+                source_is_lookup = self._is_lookup_table(source, index)
+                target_is_lookup = self._is_lookup_table(target, index)
+
+                if source_is_lookup and target_is_lookup:
+                    continue  # Skip evaluating rules for dictionary-to-dictionary pairs
+                # ---------------------------------------------
 
                 evidence = []
                 for rule in self.rules:
@@ -91,3 +99,11 @@ class RelationshipInferenceEngine:
                 candidates[node.id] = node
 
         return list(candidates.values())
+    
+    def _is_lookup_table(self, node: GraphNode, index: RelationshipIndex) -> bool:
+        """Helper that uses LookupTableRule logic to evaluate if a node is a dictionary table."""
+        # Evaluate against itself or a dummy target to test its lookup metadata properties
+        result = self.lookup_rule_checker.evaluate(node, node, index)
+        if result and result.metadata.get("lookup_strength", 0.0) > 0.4:
+            return True
+        return False

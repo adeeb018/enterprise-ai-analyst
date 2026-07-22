@@ -19,44 +19,44 @@ class BaseRule(ABC):
         pass
 
 
-class ColumnNameMatchRule(BaseRule):
+# class ColumnNameMatchRule(BaseRule):
 
-    SCORE_PER_MATCH = 20
-    MAX_SCORE = 40
+#     SCORE_PER_MATCH = 20
+#     MAX_SCORE = 40
 
-    def evaluate(
-        self,
-        source: GraphNode,
-        target: GraphNode,
-        index: RelationshipIndex,
-    ) -> RelationshipEvidence | None:
+#     def evaluate(
+#         self,
+#         source: GraphNode,
+#         target: GraphNode,
+#         index: RelationshipIndex,
+#     ) -> RelationshipEvidence | None:
 
-        source_columns = {
-            column.name.lower()
-            for column in source.table_info.columns
-        }
+#         source_columns = {
+#             column.name.lower()
+#             for column in source.table_info.columns
+#         }
 
-        target_columns = {
-            column.name.lower()
-            for column in target.table_info.columns
-        }
+#         target_columns = {
+#             column.name.lower()
+#             for column in target.table_info.columns
+#         }
 
-        matched = sorted(
-            source_columns.intersection(target_columns)
-        )
+#         matched = sorted(
+#             source_columns.intersection(target_columns)
+#         )
 
-        matched = [c for c in matched if index.is_rare_identifier_column(c)]
+#         matched = [c for c in matched if index.is_rare_identifier_column(c)]
 
-        if not matched:
-            return None
+#         if not matched:
+#             return None
 
-        return RelationshipEvidence(
-            rule="column_name_match",
-            explanation=(
-                f"Found {len(matched)} shared column(s)."
-            ),
-            matched_columns=matched,
-        )
+#         return RelationshipEvidence(
+#             rule="column_name_match",
+#             explanation=(
+#                 f"Found {len(matched)} shared column(s)."
+#             ),
+#             matched_columns=matched,
+#         )
     
 class PrimaryKeyMatchRule(BaseRule):
 
@@ -84,10 +84,10 @@ class PrimaryKeyMatchRule(BaseRule):
             source_keys.intersection(target_keys)
         )
 
+        matched = [c for c in matched if index.is_rare_identifier_column(c)]
+
         if not matched:
             return None
-
-        matched = [c for c in matched if index.is_rare_identifier_column(c)]
 
         return RelationshipEvidence(
             rule="primary_key_match",
