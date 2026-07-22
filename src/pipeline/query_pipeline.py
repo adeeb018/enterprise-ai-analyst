@@ -92,7 +92,8 @@ class QueryPipeline:
         )
 
         ranked_context = self.ranker.rank(
-            expanded_context
+            expanded_context,
+            query=question
         )
 
         return PipelineResult(

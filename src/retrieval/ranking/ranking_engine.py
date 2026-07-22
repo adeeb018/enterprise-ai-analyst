@@ -5,6 +5,7 @@ from src.retrieval.ranking.ranking_rules import (
     BaseRankingRule,
     SemanticScoreRule,
     DistanceRule,
+    TableRoleRule,
 )
 
 
@@ -21,11 +22,14 @@ class RankingEngine:
 
             DistanceRule(),
 
+            TableRoleRule(),
+
         ]
 
     def rank(
         self,
         tables: list[RankedTable],
+        query: str
     ) -> list[RankedTable]:
 
         for table in tables:
@@ -36,7 +40,7 @@ class RankingEngine:
 
             for rule in self.rules:
 
-                result = rule.score(table)
+                result = rule.score(table, query=query)
 
                 total += result.score
 

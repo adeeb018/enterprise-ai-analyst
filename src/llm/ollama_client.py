@@ -16,19 +16,34 @@ class OllamaClient:
     def generate(
         self,
         prompt: str,
+        format: str = None,
+        options: dict = None,
     ) -> str:
-
-        response = self.client.chat(
-            model=self.model,
-            messages=[
+        
+        # Default options baseline
+        merged_options = {
+            "temperature": 0
+        }
+        
+        # Merge any custom options if passed
+        if options:
+            merged_options.update(options)
+        
+        payload = {
+            "model": self.model,
+            "messages": [
                 {
                     "role": "user",
                     "content": prompt,
                 }
             ],
-            options={
-                "temperature": 0
-            },
-        )
+            "options": merged_options,
+        }
+
+        # Only include format if explicitly requested
+        if format:
+            payload["format"] = format
+
+        response = self.client.chat(**payload)
 
         return response["message"]["content"].strip()

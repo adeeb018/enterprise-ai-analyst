@@ -4,6 +4,7 @@ from pathlib import Path
 from src.graph.graph_models import (
     GraphEdge,
     GraphNode,
+    TableRole,
 )
 from src.graph.schema_graph import SchemaGraph
 from src.ingestion.schema_models import TableInfo
@@ -46,7 +47,10 @@ class GraphLoader:
         #
         # Create nodes
         #
-        for node_id in data["nodes"]:
+        for node_item in data["nodes"]:
+
+            node_id = node_item["id"]
+            saved_role = node_item.get("role", TableRole.FACT)
 
             table_info = table_lookup.get(node_id)
 
@@ -58,6 +62,7 @@ class GraphLoader:
             graph.nodes[node_id] = GraphNode(
                 id=node_id,
                 table_info=table_info,
+                role=TableRole(saved_role),
             )
 
         #

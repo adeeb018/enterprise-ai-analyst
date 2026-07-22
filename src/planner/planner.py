@@ -20,7 +20,8 @@ class Planner:
         )
 
         response = self.llm.generate(
-            prompt
+            prompt,
+            format="json",
         )
 
         try:

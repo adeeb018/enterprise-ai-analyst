@@ -1,7 +1,7 @@
 
 from src.ingestion.schema_models import TableInfo
 
-from .graph_models import GraphEdge, GraphNode
+from .graph_models import GraphEdge, GraphNode, TableRole
 
 
 class SchemaGraph:
@@ -26,12 +26,16 @@ class SchemaGraph:
         #
         for table in schema:
 
+            # --- DETERMINE ROLE DURING INGESTION ---
+            role = cls._determine_role(table)
+
             node = GraphNode(
                 id=cls.table_id(
                     table.schema_name,
                     table.table,
                 ),
                 table_info=table,
+                role=role,
             )
 
             graph.nodes[node.id] = node
@@ -107,3 +111,21 @@ class SchemaGraph:
         if node is None:
             return False
         return any(edge.target == target_id for edge in node.outgoing)
+    
+
+    @staticmethod
+    def _determine_role(table: TableInfo) -> TableRole:
+        """
+        Determines the role of a table based on its naming convention and schema structure.
+        """
+        table_name = table.table.lower()
+        
+        # Dictionary/code lookup tables typically start with 'd_' in MIMIC or contain lookup patterns
+        is_lookup = table_name.startswith("d_")
+        
+        if is_lookup:
+            return TableRole.LOOKUP
+        elif table_name in ["patients", "admissions", "icustays"]:
+            return TableRole.DIMENSION
+        else:
+            return TableRole.FACT

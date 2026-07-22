@@ -15,6 +15,7 @@ class ContextRanker:
     def rank(
         self,
         context: ExpandedContext,
+        query: str
     ) -> RankedContext:
 
         ranked_tables = []
@@ -34,7 +35,8 @@ class ContextRanker:
         # Apply scoring rules
         #
         ranked_tables = self.engine.rank(
-            ranked_tables
+            ranked_tables,
+            query
         )
 
         return RankedContext(
