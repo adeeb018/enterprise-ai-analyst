@@ -59,7 +59,7 @@ class ContextRanker:
         )
     
 
-def ensure_fact_table_coverage(ranked_tables: list, graph, top_k: int = 5) -> list:
+def ensure_fact_table_coverage(ranked_tables: list[RankedTable], graph, top_k: int = 5) -> list[RankedTable]:
         """
         Ensures that if a LOOKUP table is in the top_k, at least one connected 
         FACT or DIMENSION table is also pulled into the top_k.

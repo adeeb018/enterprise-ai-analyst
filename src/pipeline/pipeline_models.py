@@ -6,7 +6,7 @@ from src.retrieval.ranking.ranking_models import RankedContext
 from src.retrieval.retrieval_models import ExpandedContext
 
 
-class PipelineResult(BaseModel):
+class RetrievalResult(BaseModel):
     plan: QueryPlan
     retrieved_tables: list[RetrievedChunk]
     expanded_context: ExpandedContext

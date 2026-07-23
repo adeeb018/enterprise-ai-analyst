@@ -4,7 +4,7 @@ from src.config.paths import ENRICHED_SCHEMA_JSON, GRAPH_JSON
 from src.graph.graph_loader import GraphLoader
 from src.graph.schema_graph import SchemaGraph
 from src.ingestion.schema_models import TableInfo
-from src.pipeline.pipeline_models import PipelineResult
+from src.pipeline.pipeline_models import RetrievalResult
 from src.planner.planner import Planner
 from src.planner.planner_models import QueryPlan
 from src.retrieval.ranking.context_ranker import ContextRanker
@@ -64,7 +64,7 @@ class QueryPipeline:
         self,
         question: str,
         top_k: int = 2,
-    ) -> PipelineResult:
+    ) -> RetrievalResult:
 
         plan = self.planner.plan(question)
         plan = QueryPlan.model_validate(plan)
@@ -117,7 +117,7 @@ class QueryPipeline:
             query=question
         )
 
-        return PipelineResult(
+        return RetrievalResult(
             plan=plan,
             retrieved_tables=all_results,
             expanded_context=expanded_context,
