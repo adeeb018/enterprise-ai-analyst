@@ -1,11 +1,17 @@
+import os
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
     database_url: str
 
-    ollama_base_url: str
+    # Cloud Provider Settings (OpenRouter / OpenAI compatible)
+    llm_api_base: str
+    llm_api_key: str
+    llm_model: str
 
+    ollama_base_url: str
     ollama_model: str
 
     qdrant_host: str
