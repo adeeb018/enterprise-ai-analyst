@@ -19,6 +19,12 @@ class ValidationIssueType(str, Enum):
     UNKNOWN_COLUMN = "unknown_column"
     UNKNOWN_ALIAS = "unknown_alias"
     DUPLICATE_ALIAS = "duplicate_alias"
+    UNKNOWN_TABLE = "unknown_table_name"
+    EMPTY_SQL = "no_sql_generated"
+    MISSING_SELECT = "no_select_statement"
+    MULTIPLE_STATEMENTS = "multiple_statements"
+    MISSING_FROM = "no_from_in_sql"
+    DANGEROUS_STATEMENT = "dangerous_statement"
 
 
 class SQLStatus(str, Enum):

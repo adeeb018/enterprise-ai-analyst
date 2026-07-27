@@ -1,6 +1,5 @@
 import json
 
-from src.config.paths import ENRICHED_SCHEMA_JSON, GRAPH_JSON
 from src.graph.graph_loader import GraphLoader
 from src.graph.schema_graph import SchemaGraph
 from src.ingestion.schema_models import TableInfo
@@ -11,6 +10,7 @@ from src.retrieval.ranking.context_ranker import ContextRanker
 from src.retrieval.graph_expander import GraphExpander
 from src.retrieval.query_models import RetrievedChunk
 from src.retrieval.retriever import Retriever
+from src.utils.helper import get_graph
 
 
 class QueryPipeline:
@@ -19,28 +19,10 @@ class QueryPipeline:
 
         self.planner = Planner()
         self.retriever = Retriever()
-        self.graph = self._get_graph()
+        self.graph = get_graph()
         self.expander = GraphExpander(graph=self.graph)
         self.ranker = ContextRanker(graph=self.graph)
 
-
-    def _get_graph(
-        self,
-    ) -> SchemaGraph:
-
-        schema = [
-            TableInfo.model_validate(item)
-            for item in json.loads(
-                ENRICHED_SCHEMA_JSON.read_text()
-            )
-        ]
-
-        graph = GraphLoader().load(
-            graph_path=GRAPH_JSON,
-            schema=schema,
-        )
-
-        return graph
 
     # def _build_expander(
     #     self,

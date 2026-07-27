@@ -55,6 +55,8 @@ class ColumnExistsRule(ValidationRule):
         # Validate columns
         #
         for column in context.ast.find_all(exp.Column):
+            if isinstance(column.this, exp.Star) or column.name == "*":
+                continue
 
             column_name = column.name
             table_alias = column.table

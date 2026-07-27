@@ -2,14 +2,15 @@ import json
 
 # from src.llm.llm_client import CloudLLMClient
 from src.llm.gemini_client import GeminiLLMClient
+from src.llm.llm_client import CloudLLMClient
 from src.pipeline.query_pipeline import QueryPipeline
 from src.sql.generator.builder import SchemaContextBuilder
 from src.sql.generator.prompt_builder import PromptBuilder
 from src.sql.models import SQLCandidate
 from src.sql.validator.validator import SQLValidator
-from src.utils.helper import parse_llm_json
+from src.utils.helper import get_graph, parse_llm_json
 
-text = "Find the average heart rate of patients with sepsis"
+text = "Find the mortality rate of patients admitted with myocardial infarction"
 
 def main():
 
@@ -27,20 +28,20 @@ def main():
             text
         )
 
-        # print("\n" + "=" * 80)
-        # print("RANKED TABLES")
-        # print("=" * 80)
+        print("\n" + "=" * 80)
+        print("RANKED TABLES")
+        print("=" * 80)
 
-        # for table in retrieval_result.ranked_context.ranked_tables:
+        for table in retrieval_result.ranked_context.ranked_tables:
 
-        #     print(
-        #         f"{table.score:.3f}"
-        #         f"  "
-        #         f"{table.node.node.id}"
-        #     )
+            print(
+                f"{table.score:.3f}"
+                f"  "
+                f"{table.node.node.id}"
+            )
 
-        #     for evidence in table.evidence:
-        #         print(f"      • {evidence}")
+            for evidence in table.evidence:
+                print(f"      • {evidence}")
 
 
         builder = PromptBuilder()
@@ -53,17 +54,24 @@ def main():
             schema_context,
         )
 
-        # print(prompt)
+        print(prompt)
 
-        sql_agent = GeminiLLMClient()
+        sql_agent = CloudLLMClient()
         response = sql_agent.generate(prompt=prompt, format='json')
         print(response)
         response_dict = parse_llm_json(response)
+
+        # response_dict = {
+        #     "sql": "SELECT AVG(c.valuenum) AS avg_heart_rate FROM mimiciv_icu.chartevenses c JOIN mimiciv_hosp.d_icd_diagnoses diag ON c.itemid = diag.icd_code WHERE c.valuenum IS NOT NULL",
+        #     "explanation": "This query calculates the overall average heart rate for patients diagnosed with sepsis. It filters hospital admissions in mimiciv_hosp.diagnoses_icd linked to sepsis diagnoses in mimiciv_hosp.d_icd_diagnoses, and calculates the average of heart rate chart events in mimiciv_icu.chartevents using items matching 'heart rate' from mimiciv_icu.d_items."
+        # }
         # print(response_dict['sql'])
         validator = SQLValidator()
         sqlCandidate = SQLCandidate(sql=response_dict['sql'],
                                     explanation=response_dict['explanation'])
-        report = validator.validate(candidate=sqlCandidate, schema_context=schema_context)
+        report = validator.validate(candidate=sqlCandidate,
+                                    schema_context=schema_context,
+                                    graph=get_graph())
         print(report)
 
 
@@ -129,7 +137,7 @@ if __name__ == "__main__":
 #         validator = SQLValidator()
 #         sqlCandidate = SQLCandidate(sql=response_dict['sql'],
 #                                     explanation=response_dict['explanation'])
-#         report = validator.validate(candidate=sqlCandidate, schema_context=schema_context)
+#         report = validator.validate(candidate=sqlCandidate, schema_context=schema_context,graph=get_graph())
 #         print(report)
 
 # if __name__ == "__main__":

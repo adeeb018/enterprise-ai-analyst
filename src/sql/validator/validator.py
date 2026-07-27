@@ -1,9 +1,11 @@
 from sqlglot import parse_one
 from sqlglot.errors import ParseError
+from src.graph.schema_graph import SchemaGraph
 from src.sql.generator.models import SchemaContext
 from src.sql.models import SQLCandidate, ValidationReport
 from src.sql.validator.rules.alias import AliasRule
 from src.sql.validator.rules.column_exists import ColumnExistsRule
+from src.sql.validator.rules.join import JoinRule
 from src.sql.validator.rules.table_exists import TableExistsRule
 
 from .context import ValidationContext
@@ -29,12 +31,14 @@ class SQLValidator:
             TableExistsRule(),
             ColumnExistsRule(),
             AliasRule(),
+            JoinRule(),
         ]
 
     def validate(
         self,
         candidate: SQLCandidate,
         schema_context: SchemaContext,
+        graph: SchemaGraph
     ) -> ValidationReport:
 
         report = ValidationReport(
@@ -44,6 +48,7 @@ class SQLValidator:
         context = ValidationContext(
             candidate=candidate,
             schema_context=schema_context,
+            graph=graph
         )
 
         try:
