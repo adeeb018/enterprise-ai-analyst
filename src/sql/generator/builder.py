@@ -2,10 +2,8 @@ from src.ingestion.schema_models import TableInfo
 from src.pipeline.pipeline_models import RetrievalResult
 
 from .models import (
-    SchemaColumn,
     SchemaContext,
     SchemaRelationship,
-    SchemaTable,
     TableReference,
 )
 
@@ -47,19 +45,19 @@ class SchemaContextBuilder:
 
             seen_tables.add(table_key)
 
-            schema_table = self._build_table(table_info)
-
-            context.tables.append(schema_table)
+            context.tables.append(table_info)
 
             context.primary_tables.append(
                 TableReference(
-                    schema=table_info.schema_name,
+                    schema_=table_info.schema_name,
                     table=table_info.table,
                 )
             )
 
 
-            for relationship in self._build_relationships(table_info):
+            relationships = self._build_relationships(table_info)
+
+            for relationship in relationships:
 
                 relationship_key = self._relationship_key(
                     relationship
@@ -78,42 +76,6 @@ class SchemaContextBuilder:
 
         return context
 
-    def _build_table(
-        self,
-        table_info: TableInfo,
-    ) -> SchemaTable:
-
-        return SchemaTable(
-            schema=table_info.schema_name,
-            name=table_info.table,
-            description=table_info.description,
-            columns=self._build_columns(table_info),
-        )
-
-    def _build_columns(
-        self,
-        table_info: TableInfo,
-    ) -> list[SchemaColumn]:
-
-        foreign_key_columns = {
-            fk.column
-            for fk in table_info.foreign_keys
-        }
-
-        return [
-            SchemaColumn(
-                name=column.name,
-                is_primary_key=(
-                    column.name
-                    in table_info.primary_keys
-                ),
-                is_foreign_key=(
-                    column.name
-                    in foreign_key_columns
-                ),
-            )
-            for column in table_info.columns
-        ]
 
     def _build_relationships(
         self,

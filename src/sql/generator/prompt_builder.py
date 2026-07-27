@@ -9,28 +9,29 @@ class PromptBuilder:
     """
 
     SYSTEM_PROMPT = """
-You are an expert PostgreSQL SQL engineer.
+    You are an expert PostgreSQL SQL engineer.
 
-Your task is to generate syntactically correct PostgreSQL SQL.
+    Your task is to generate syntactically correct PostgreSQL SQL.
 
-Rules:
-
-- Use ONLY the provided schema.
-- Never invent tables.
-- Never invent columns.
-- Use foreign key relationships when joining tables.
-- Prefer explicit JOIN syntax.
-- Return ONLY valid JSON.
-"""
+    Rules:
+    - Use ONLY the provided schema and explicit relationships.
+    - Never invent tables, columns, or data types.
+    - If a table is referenced in the Relationships section, it exists and can be joined, even if its detailed column list is abbreviated.
+    - Do NOT use any prior knowledge of MIMIC-IV, medical databases, or standard enterprise schemas.
+    - If the requested information CANNOT be obtained using the provided tables and relationships, you must NOT invent SQL. Instead, set the "sql" field to an empty string ("") and provide a clear explanation in the "explanation" field.
+    - Use foreign key relationships when joining tables.
+    - Prefer explicit JOIN syntax.
+    - Generate valid, executable PostgreSQL SQL only.
+    - Return ONLY valid JSON. Do not wrap the JSON in markdown code blocks (like ```json).
+    """
 
     OUTPUT_FORMAT = """
-Return ONLY JSON.
-
-{
-    "sql": "...",
-    "explanation": "..."
-}
-"""
+    Return ONLY valid JSON using the exact structure below:
+    {
+        "sql": "YOUR_SQL_QUERY_HERE_OR_EMPTY_STRING",
+        "explanation": "YOUR_EXPLANATION_HERE"
+    }
+    """
 
     def build(
         self,
@@ -53,14 +54,15 @@ Return ONLY JSON.
 
         return "\n\n".join(prompt)
     
-    def _question(  
+    def _question(
         self,
         question: str,
     ) -> str:
 
         return f"""## User Question
-                {question}
-                """
+
+    {question}
+    """
     
     def _plan(
         self,
@@ -77,21 +79,20 @@ Return ONLY JSON.
             for constraint in plan.constraints
         )
 
-        return f"""
-                    ## Query Plan
+        return f"""## Query Plan
 
-                    Objective:
-                    {plan.objective}
+        Objective:
+        {plan.objective}
 
-                    Concepts:
-                    {concepts}
+        Concepts:
+        {concepts}
 
-                    Constraints:
-                    {constraints}
+        Constraints:
+        {constraints}
 
-                    Expected Output:
-                    {plan.output}
-                """
+        Expected Output:
+        {plan.output}
+        """
     
 
     def _schema(
@@ -100,18 +101,29 @@ Return ONLY JSON.
     ) -> str:
 
         sections = [
-            "## Database Schema"
+            "## Database Schema",
+            self._primary_tables(context),
+            self._tables(context),
+            self._relationships(context),
         ]
 
-        sections.append(
-            self._tables(context)
-        )
-
-        sections.append(
-            self._relationships(context)
-        )
-
         return "\n\n".join(sections)
+    
+    def _primary_tables(
+        self,
+        context: SchemaContext,
+    ) -> str:
+
+        lines = [
+            "## Primary Tables"
+        ]
+
+        for table in context.primary_tables:
+            lines.append(
+                f"- {table.schema}.{table.table}"
+            )
+
+        return "\n".join(lines)
     
 
     def _tables(
@@ -126,7 +138,7 @@ Return ONLY JSON.
         for table in context.tables:
 
             lines.append(
-                f"\nTable: {table.schema}.{table.name}"
+                f"\nTable: {table.schema_name}.{table.table}"
             )
 
             if table.description:
@@ -136,15 +148,23 @@ Return ONLY JSON.
 
             lines.append("Columns:")
 
+            foreign_key_columns = {
+                fk.column
+                for fk in table.foreign_keys
+            }
+
             for column in table.columns:
 
                 flags = []
 
-                if column.is_primary_key:
+                if column.name in table.primary_keys:
                     flags.append("PK")
 
-                if column.is_foreign_key:
+                if column.name in foreign_key_columns:
                     flags.append("FK")
+
+                if not column.nullable:
+                    flags.append("NOT NULL")
 
                 suffix = ""
 
@@ -152,7 +172,7 @@ Return ONLY JSON.
                     suffix = f" ({', '.join(flags)})"
 
                 lines.append(
-                    f"- {column.name}{suffix}"
+                    f"- {column.name}: {column.data_type}{suffix}"
                 )
 
         return "\n".join(lines)

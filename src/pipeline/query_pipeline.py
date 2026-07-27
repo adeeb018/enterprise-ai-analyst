@@ -75,20 +75,20 @@ class QueryPipeline:
 
         for concept in plan.concepts:
 
-            # print(f"\nSearching for concept: {concept}")
+            print(f"\nSearching for concept: {concept}")
 
             results = self.retriever.retrieve(
                 concept,
                 limit=top_k,
             )
 
-            # print(f"\nResults for concept: {concept}")
+            print(f"\nResults for concept: {concept}")
 
-            # for r in results:
-            #     print(
-            #         f"{r.score:.4f} "
-            #         f"{r.schema_name}.{r.table}"
-            #     )
+            for r in results:
+                print(
+                    f"{r.score:.4f} "
+                    f"{r.schema_name}.{r.table}"
+                )
 
             for result in results:
 

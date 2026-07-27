@@ -19,7 +19,7 @@ class ContextRanker:
         self,
         context: ExpandedContext,
         query: str,
-        top_k: int = 10
+        top_k: int = 15
     ) -> RankedContext:
 
         ranked_tables = []

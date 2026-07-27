@@ -1,24 +1,7 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
+from src.ingestion.schema_models import TableInfo
 
-class SchemaColumn(BaseModel):
-    name: str
-
-    description: str | None = None
-
-    is_primary_key: bool = False
-
-    is_foreign_key: bool = False
-
-
-class SchemaTable(BaseModel):
-    schema: str
-
-    name: str
-
-    description: str | None = None
-
-    columns: list[SchemaColumn] = Field(default_factory=list)
 
 class SchemaRelationship(BaseModel):
     source_schema: str
@@ -30,11 +13,12 @@ class SchemaRelationship(BaseModel):
     target_column: str
 
 class TableReference(BaseModel):
-    schema: str
+    model_config = ConfigDict(populate_by_name=True)
+    schema_: str = Field(alias="schema")
     table: str
 
 class SchemaContext(BaseModel):
-    tables: list[SchemaTable] = Field(default_factory=list)
+    tables: list[TableInfo] = Field(default_factory=list)
 
     relationships: list[SchemaRelationship] = Field(default_factory=list)
 
