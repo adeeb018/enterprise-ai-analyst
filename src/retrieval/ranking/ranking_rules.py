@@ -69,15 +69,18 @@ class DistanceRule(BaseRankingRule):
             
         # 1-hop graph neighbors: Gated by semantic relevance to prevent super-hub noise
         if distance == 1 and role in [TableRole.FACT, TableRole.DIMENSION]:
-            if semantic >= 0.35: 
+            if semantic >= 0.35:
+                # Scaled bonus: maxes out around +0.06 instead of a flat +0.12
+                scaled_bonus = 0.02 + (semantic * 0.08)
+
                 return RankingScore(
-                    score=0.12, 
-                    evidence=[f"Gated 1-hop join path (1-hop {role}) (+0.12)"]
+                    score=scaled_bonus, 
+                    evidence=[f"Proportional 1-hop join path (+{scaled_bonus:.3f})"]
                 )
             else:
                 return RankingScore(
-                    score=0.02, 
-                    evidence=[f"Low-relevance 1-hop connection suppressed (+0.02)"]
+                    score=0.01, 
+                    evidence=[f"Low-relevance 1-hop connection suppressed (+0.01)"]
                 )
             
         penalty = -0.08 * distance
@@ -106,7 +109,7 @@ class TableRoleRule(BaseRankingRule):
 
         if role == TableRole.LOOKUP:
             # EXCEPTION: If it's a direct semantic hit with a high score, let it in!
-            if distance == 0 and semantic >= 0.72:
+            if distance == 0 and semantic >= 0.60:
                 return RankingScore(
                     score=0.15, 
                     evidence=[f"Direct high-confidence lookup match ({semantic:.3f}) (+0.15)"]

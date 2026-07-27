@@ -1,9 +1,11 @@
+import json
+
 from src.llm.llm_client import CloudLLMClient
 from src.pipeline.query_pipeline import QueryPipeline
 from src.sql.generator.builder import SchemaContextBuilder
 from src.sql.generator.prompt_builder import PromptBuilder
 
-text = "Show demographic details and length of stay for ICU patients"
+text = "Find the average heart rate of patients with sepsis"
 
 def main():
 
@@ -21,37 +23,39 @@ def main():
             text
         )
 
-        print("\n" + "=" * 80)
-        print("RANKED TABLES")
-        print("=" * 80)
+        # print("\n" + "=" * 80)
+        # print("RANKED TABLES")
+        # print("=" * 80)
 
-        for table in retrieval_result.ranked_context.ranked_tables:
+        # for table in retrieval_result.ranked_context.ranked_tables:
 
-            print(
-                f"{table.score:.3f}"
-                f"  "
-                f"{table.node.node.id}"
-            )
+        #     print(
+        #         f"{table.score:.3f}"
+        #         f"  "
+        #         f"{table.node.node.id}"
+        #     )
 
-            for evidence in table.evidence:
-                print(f"      • {evidence}")
+        #     for evidence in table.evidence:
+        #         print(f"      • {evidence}")
 
 
-        # builder = PromptBuilder()
-        # schema_context_builder=SchemaContextBuilder()
-        # schema_context = schema_context_builder.build(retrieval_result)
+        builder = PromptBuilder()
+        schema_context_builder=SchemaContextBuilder()
+        schema_context = schema_context_builder.build(retrieval_result)
 
-        # prompt = builder.build(
-        #     text,
-        #     retrieval_result.plan,
-        #     schema_context,
-        # )
+        prompt = builder.build(
+            text,
+            retrieval_result.plan,
+            schema_context,
+        )
 
-        # print(prompt)
+        print(prompt)
 
-        # sql_agent = CloudLLMClient()
-        # response = sql_agent.generate(prompt=prompt)
-        # print(response)
+        sql_agent = CloudLLMClient()
+        response = sql_agent.generate(prompt=prompt, format='json')
+        print(response)
+        response_dict = json.loads(response)
+        print(response_dict['sql'])
 
 
 if __name__ == "__main__":
