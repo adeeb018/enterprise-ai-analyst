@@ -4,6 +4,8 @@ from src.llm.llm_client import CloudLLMClient
 from src.pipeline.query_pipeline import QueryPipeline
 from src.sql.generator.builder import SchemaContextBuilder
 from src.sql.generator.prompt_builder import PromptBuilder
+from src.sql.models import SQLCandidate
+from src.sql.validator.validator import SQLValidator
 
 text = "Find the average heart rate of patients with sepsis"
 
@@ -49,13 +51,18 @@ def main():
             schema_context,
         )
 
-        print(prompt)
+        # print(prompt)
 
         sql_agent = CloudLLMClient()
         response = sql_agent.generate(prompt=prompt, format='json')
         print(response)
         response_dict = json.loads(response)
-        print(response_dict['sql'])
+        # print(response_dict['sql'])
+        validator = SQLValidator()
+        sqlCandidate = SQLCandidate(sql=response_dict['sql'],
+                                    explanation=response_dict['explanation'])
+        report = validator.validate(candidate=sqlCandidate, schema_context=schema_context)
+        print(report)
 
 
 if __name__ == "__main__":

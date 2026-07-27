@@ -12,10 +12,13 @@ class ValidationIssueType(str, Enum):
     MISSING_COLUMN = "missing_column"
     INVALID_JOIN = "invalid_join"
     INVALID_AGGREGATION = "invalid_aggregation"
-    INVALID_ALIAS = "invalid_alias"
     INVALID_FUNCTION = "invalid_function"
     INVALID_SYNTAX = "invalid_syntax"
     UNKNOWN = "unknown"
+    SQL_SYNTAX_ERROR = "sql_syntax_error"
+    UNKNOWN_COLUMN = "unknown_column"
+    UNKNOWN_ALIAS = "unknown_alias"
+    DUPLICATE_ALIAS = "duplicate_alias"
 
 
 class SQLStatus(str, Enum):
