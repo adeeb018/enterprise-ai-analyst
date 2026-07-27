@@ -11,6 +11,10 @@ class Settings(BaseSettings):
     llm_api_key: str
     llm_model: str
 
+    gemini_llm_api_key: str
+    gemini_llm_api_base: str
+    gemini_llm_model: str
+
     ollama_base_url: str
     ollama_model: str
 

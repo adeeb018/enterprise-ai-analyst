@@ -1,11 +1,13 @@
 import json
 
-from src.llm.llm_client import CloudLLMClient
+# from src.llm.llm_client import CloudLLMClient
+from src.llm.gemini_client import GeminiLLMClient
 from src.pipeline.query_pipeline import QueryPipeline
 from src.sql.generator.builder import SchemaContextBuilder
 from src.sql.generator.prompt_builder import PromptBuilder
 from src.sql.models import SQLCandidate
 from src.sql.validator.validator import SQLValidator
+from src.utils.helper import parse_llm_json
 
 text = "Find the average heart rate of patients with sepsis"
 
@@ -53,10 +55,10 @@ def main():
 
         # print(prompt)
 
-        sql_agent = CloudLLMClient()
+        sql_agent = GeminiLLMClient()
         response = sql_agent.generate(prompt=prompt, format='json')
         print(response)
-        response_dict = json.loads(response)
+        response_dict = parse_llm_json(response)
         # print(response_dict['sql'])
         validator = SQLValidator()
         sqlCandidate = SQLCandidate(sql=response_dict['sql'],
@@ -69,6 +71,7 @@ if __name__ == "__main__":
     main()
 
 # from src.pipeline.query_pipeline import QueryPipeline
+# from src.utils.helper import parse_llm_json
 
 # # 10 Diverse Test Queries covering different relational paths in MIMIC-IV
 # TEST_QUERIES = [
@@ -117,9 +120,17 @@ if __name__ == "__main__":
 
 #         # print(prompt)
 
-#         sql_agent = CloudLLMClient()
-#         response = sql_agent.generate(prompt=prompt)
+#         sql_agent = GeminiLLMClient()
+#         response = sql_agent.generate(prompt=prompt, format='json')
 #         print(response)
+
+#         response_dict = parse_llm_json(response)
+#         # print(response_dict['sql'])
+#         validator = SQLValidator()
+#         sqlCandidate = SQLCandidate(sql=response_dict['sql'],
+#                                     explanation=response_dict['explanation'])
+#         report = validator.validate(candidate=sqlCandidate, schema_context=schema_context)
+#         print(report)
 
 # if __name__ == "__main__":
 #     main()
