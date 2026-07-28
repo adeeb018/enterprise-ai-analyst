@@ -75,6 +75,9 @@ class FunctionRule(ValidationRule):
 
         for function in context.ast.find_all(exp.Func):
 
+            if isinstance(function, exp.Connector):
+                continue
+
             #
             # sqlglot stores the function class name.
             #

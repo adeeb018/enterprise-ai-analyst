@@ -103,36 +103,79 @@ class OnClauseRule(ValidationRule):
 
                     continue
 
-                #
-                # Validate join columns
-                #
                 valid = False
 
-                for edge in context.graph.get_neighbors(left_table):
+                #
+                # Check left table edges
+                #
+                left_node = context.graph.get_node(left_table)
 
-                    if edge.target != right_table:
-                        continue
+                if left_node is not None:
 
-                    if (
-                        edge.source_column == left.name
-                        and edge.target_column == right.name
-                    ):
-                        valid = True
-                        break
-
-                if not valid:
-
-                    for edge in context.graph.get_neighbors(right_table):
-
-                        if edge.target != left_table:
-                            continue
+                    #
+                    # Outgoing relationships
+                    #
+                    for edge in left_node.outgoing:
 
                         if (
-                            edge.source_column == right.name
-                            and edge.target_column == left.name
+                            edge.target == right_table
+                            and edge.source_column == left.name
+                            and edge.target_column == right.name
                         ):
                             valid = True
                             break
+
+                    #
+                    # Incoming relationships
+                    #
+                    if not valid:
+
+                        for edge in left_node.incoming:
+
+                            if (
+                                edge.source == right_table
+                                and edge.target_column == left.name
+                                and edge.source_column == right.name
+                            ):
+                                valid = True
+                                break
+
+                #
+                # Check opposite direction if needed
+                #
+                if not valid:
+
+                    right_node = context.graph.get_node(right_table)
+
+                    if right_node is not None:
+
+                        #
+                        # Outgoing relationships
+                        #
+                        for edge in right_node.outgoing:
+
+                            if (
+                                edge.target == left_table
+                                and edge.source_column == right.name
+                                and edge.target_column == left.name
+                            ):
+                                valid = True
+                                break
+
+                        #
+                        # Incoming relationships
+                        #
+                        if not valid:
+
+                            for edge in right_node.incoming:
+
+                                if (
+                                    edge.source == left_table
+                                    and edge.target_column == right.name
+                                    and edge.source_column == left.name
+                                ):
+                                    valid = True
+                                    break
 
                 if not valid:
 

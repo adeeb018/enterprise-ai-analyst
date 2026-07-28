@@ -3,9 +3,14 @@ from sqlglot.errors import ParseError
 from src.graph.schema_graph import SchemaGraph
 from src.sql.generator.models import SchemaContext
 from src.sql.models import SQLCandidate, ValidationReport
+from src.sql.validator.rules.aggregate import AggregateRule
 from src.sql.validator.rules.alias import AliasRule
 from src.sql.validator.rules.column_exists import ColumnExistsRule
+from src.sql.validator.rules.function import FunctionRule
 from src.sql.validator.rules.join import JoinRule
+from src.sql.validator.rules.limit import LimitRule
+from src.sql.validator.rules.on_clause import OnClauseRule
+from src.sql.validator.rules.order_by import OrderByRule
 from src.sql.validator.rules.table_exists import TableExistsRule
 
 from .context import ValidationContext
@@ -32,6 +37,11 @@ class SQLValidator:
             ColumnExistsRule(),
             AliasRule(),
             JoinRule(),
+            OrderByRule(),
+            OnClauseRule(),
+            LimitRule(),
+            FunctionRule(),
+            AggregateRule(),
         ]
 
     def validate(

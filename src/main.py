@@ -7,10 +7,11 @@ from src.pipeline.query_pipeline import QueryPipeline
 from src.sql.generator.builder import SchemaContextBuilder
 from src.sql.generator.prompt_builder import PromptBuilder
 from src.sql.models import SQLCandidate
+from src.sql.repair import repair_engine
 from src.sql.validator.validator import SQLValidator
 from src.utils.helper import get_graph, parse_llm_json
 
-text = "Find the mortality rate of patients admitted with myocardial infarction"
+text = "Show diabetic patients admitted to ICU"
 
 def main():
 
@@ -28,43 +29,43 @@ def main():
             text
         )
 
-        print("\n" + "=" * 80)
-        print("RANKED TABLES")
-        print("=" * 80)
+        # print("\n" + "=" * 80)
+        # print("RANKED TABLES")
+        # print("=" * 80)
 
-        for table in retrieval_result.ranked_context.ranked_tables:
+        # for table in retrieval_result.ranked_context.ranked_tables:
 
-            print(
-                f"{table.score:.3f}"
-                f"  "
-                f"{table.node.node.id}"
-            )
+        #     print(
+        #         f"{table.score:.3f}"
+        #         f"  "
+        #         f"{table.node.node.id}"
+        #     )
 
-            for evidence in table.evidence:
-                print(f"      • {evidence}")
+        #     for evidence in table.evidence:
+        #         print(f"      • {evidence}")
 
 
         builder = PromptBuilder()
         schema_context_builder=SchemaContextBuilder()
         schema_context = schema_context_builder.build(retrieval_result)
 
-        prompt = builder.build(
-            text,
-            retrieval_result.plan,
-            schema_context,
-        )
+        # prompt = builder.build(
+        #     text,
+        #     retrieval_result.plan,
+        #     schema_context,
+        # )
 
-        print(prompt)
+        # print(prompt)
 
-        sql_agent = CloudLLMClient()
-        response = sql_agent.generate(prompt=prompt, format='json')
-        print(response)
-        response_dict = parse_llm_json(response)
+        # sql_agent = CloudLLMClient()
+        # response = sql_agent.generate(prompt=prompt, format='json')
+        # print(response)
+        # response_dict = parse_llm_json(response)
 
-        # response_dict = {
-        #     "sql": "SELECT AVG(c.valuenum) AS avg_heart_rate FROM mimiciv_icu.chartevenses c JOIN mimiciv_hosp.d_icd_diagnoses diag ON c.itemid = diag.icd_code WHERE c.valuenum IS NOT NULL",
-        #     "explanation": "This query calculates the overall average heart rate for patients diagnosed with sepsis. It filters hospital admissions in mimiciv_hosp.diagnoses_icd linked to sepsis diagnoses in mimiciv_hosp.d_icd_diagnoses, and calculates the average of heart rate chart events in mimiciv_icu.chartevents using items matching 'heart rate' from mimiciv_icu.d_items."
-        # }
+        response_dict = {
+            "sql": "SELECT DISTINCT p.subject_id, p.gender, p.anchor_age, p.dod FROM mimiciv_hosp.patients p INNER JOIN mimiciv_icu.icustays i ON p.subject_id = i.subject_id INNER JOIN mimiciv_hosp.diagnoses_icd d ON p.subject_id = d.subject_id AND i.hadm_id = d.hadm_id INNER JOIN mimiciv_hosp.d_icd_diagnoses di ON d.icd_code = di.icd_code AND d.icd_version = di.icd_version WHERE di.long_title ILIKE '%diabetes%'",
+            "explanation": "The query retrieves patients who have a diagnosis of diabetes (resolved using diagnoses_icd and d_icd_diagnoses with an ILIKE '%diabetes%' filter) and were admitted to the ICU (by joining the icustays table)."
+            }
         # print(response_dict['sql'])
         validator = SQLValidator()
         sqlCandidate = SQLCandidate(sql=response_dict['sql'],
@@ -72,7 +73,22 @@ def main():
         report = validator.validate(candidate=sqlCandidate,
                                     schema_context=schema_context,
                                     graph=get_graph())
+        
         print(report)
+        repair_sql = repair_engine.RepairEngine()
+        
+        if not report.is_valid:
+            repair_result = repair_sql.repair(
+                question=text,
+                candidate=sqlCandidate,
+                report=report,
+                schema_context=schema_context,
+                validator = validator,
+                graph = get_graph()
+            )
+
+            sqlCandidate.sql = repair_result.sql
+        print(sqlCandidate)
 
 
 if __name__ == "__main__":
