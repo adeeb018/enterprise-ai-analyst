@@ -25,6 +25,10 @@ class ValidationIssueType(str, Enum):
     MULTIPLE_STATEMENTS = "multiple_statements"
     MISSING_FROM = "no_from_in_sql"
     DANGEROUS_STATEMENT = "dangerous_statement"
+    INVALID_GROUP_BY = "invalid_group_by"
+    INVALID_LIMIT = "invalid_limit"
+    UNKNOWN_FUNCTION = "unknown_function"
+    INVALID_ON_CLAUSE = "invalid_on_clause"
 
 
 class SQLStatus(str, Enum):
