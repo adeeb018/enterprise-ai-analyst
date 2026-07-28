@@ -1,3 +1,5 @@
+from pydantic import Field
+
 from pydantic.dataclasses import dataclass
 
 from src.graph.graph_models import GraphEdge, GraphNode
@@ -13,6 +15,7 @@ class ExpandedNode:
     retrieval_score: float | None = None
     parent: str |None = None
     via_edge: GraphEdge | None = None
+    reached_from_seeds: set[str] = Field(default_factory=set)
 
 
 @dataclass

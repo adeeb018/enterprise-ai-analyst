@@ -78,6 +78,7 @@ class GraphExpander:
                 via_edge=None,
                 source_seed=table_id,
                 retrieval_score=retrieved.score,
+                reached_from_seeds={table_id}, 
             )
 
             expanded[table_id] = expanded_node
@@ -146,6 +147,7 @@ class GraphExpander:
             # a shared neighbour (e.g. diagnoses_icd reachable from
             # both a strong d_icd_diagnoses hit and a weak unrelated hit).
             existing = expanded[neighbour_id]
+            existing.reached_from_seeds.add(current.source_seed)
             if propagated_score > existing.retrieval_score:
                 existing.retrieval_score = propagated_score
                 existing.distance = current.distance + 1
@@ -175,6 +177,7 @@ class GraphExpander:
             via_edge=state.via_edge,
             source_seed=state.source_seed,
             retrieval_score=propagated_score,
+            reached_from_seeds={current.source_seed}
         )
 
         expanded[neighbour_id] = expanded_node

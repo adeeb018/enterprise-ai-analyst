@@ -47,7 +47,7 @@ class ContextRanker:
         # Apply Fact Table Coverage Safety Net (Idea 3)
         #
         if self.graph:
-            ranked_tables = ensure_fact_table_coverage(
+            ranked_tables = ensure_table_coverage(
                 ranked_tables, 
                 self.graph, 
                 top_k=top_k
@@ -57,44 +57,52 @@ class ContextRanker:
             retrieved_tables=context.retrieved_tables,
             ranked_tables=ranked_tables,
         )
-    
 
-def ensure_fact_table_coverage(ranked_tables: list[RankedTable], graph, top_k: int = 5) -> list[RankedTable]:
-        """
-        Ensures that if a LOOKUP table is in the top_k, at least one connected 
-        FACT or DIMENSION table is also pulled into the top_k.
-        """
-        if not ranked_tables or not graph:
-            return ranked_tables
+def ensure_table_coverage(ranked_tables: list[RankedTable], graph, top_k: int = 15) -> list:
+    """
+    Two-way structural safety net:
+    - A LOOKUP table in top_k needs its FACT/DIMENSION partner present.
+    - A FACT/DIMENSION table in top_k needs its LOOKUP partner(s) present
+      when connected via a guaranteed foreign key (i.e. it likely stores
+      a code/itemid that queries will need to resolve to a label).
+    Ranking alone can't guarantee this — a structurally required
+    dictionary can score low simply because its own description embeds
+    poorly against the query, even though the fact table referencing it
+    scored well.
+    """
+    if not ranked_tables:
+        return ranked_tables
 
-        result = list(ranked_tables[:top_k])
-        present_table_ids = {t.node.node.id for t in result}
+    result = list(ranked_tables[:top_k])
+    present_ids = {t.node.node.id for t in result}
 
-        for table in list(result):
-            graph_node = table.node.node  # Inner GraphNode access
-            
-            if graph_node is None or getattr(graph_node, "role", None) != TableRole.LOOKUP:
-                continue
+    for table in list(result):
+        graph_node = table.node.node
+        role = getattr(graph_node, "role", None)
+        neighbors = graph.get_neighbors(graph_node.id)
 
-            neighbors = graph.get_neighbors(graph_node.id)
-            fact_neighbors = [
+        if role == TableRole.LOOKUP:
+            wanted = [n for n in neighbors if getattr(n, "role", TableRole.FACT) != TableRole.LOOKUP]
+        elif role in (TableRole.FACT, TableRole.DIMENSION):
+            # Only pull in lookups reached via a guaranteed FK — don't
+            # drag in every loosely-inferred dictionary neighbor.
+            wanted = [
                 n for n in neighbors
-                if getattr(n, "role", TableRole.FACT) != TableRole.LOOKUP
+                if getattr(n, "role", None) == TableRole.LOOKUP
+                and graph.has_edge(graph_node.id, n.id)  # confirms a real FK exists
             ]
-            
-            if not fact_neighbors:
-                continue
+        else:
+            continue
 
-            fact_neighbor_ids = {n.id for n in fact_neighbors}
-            
-            if any(fid in present_table_ids for fid in fact_neighbor_ids):
-                continue
+        wanted_ids = {n.id for n in wanted}
+        if not wanted_ids or any(wid in present_ids for wid in wanted_ids):
+            continue
 
-            for candidate in ranked_tables:
-                candidate_id = getattr(candidate.node.node, "id", None)
-                if candidate_id in fact_neighbor_ids:
-                    result.append(candidate)
-                    present_table_ids.add(candidate_id)
-                    break
+        for candidate in ranked_tables:
+            cid = getattr(candidate.node.node, "id", None)
+            if cid in wanted_ids:
+                result.append(candidate)
+                present_ids.add(cid)
+                break
 
-        return result
+    return result

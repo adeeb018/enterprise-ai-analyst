@@ -6,6 +6,7 @@ from src.retrieval.ranking.ranking_rules import (
     SemanticScoreRule,
     DistanceRule,
     TableRoleRule,
+    HubConvergenceRule,
 )
 
 
@@ -23,6 +24,8 @@ class RankingEngine:
             DistanceRule(),
 
             TableRoleRule(),
+
+            HubConvergenceRule()
 
         ]
 

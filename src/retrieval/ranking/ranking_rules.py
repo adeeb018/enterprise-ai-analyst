@@ -126,3 +126,20 @@ class TableRoleRule(BaseRankingRule):
             return RankingScore(score=boost, evidence=[f"Core Fact/Dimension multiplier (+{boost:.3f})"])
 
         return RankingScore(score=0.0, evidence=[])
+    
+
+class HubConvergenceRule(BaseRankingRule):
+    """
+    A table reached from multiple independent seeds is structurally
+    more likely to be a real join hub the query needs, not just an
+    incidental neighbour of one relevant table.
+    """
+    PER_EXTRA_SEED = 0.03
+
+    def score(self, table: RankedTable, query: str) -> RankingScore:
+        seeds = getattr(table.node, "reached_from_seeds", None) or set()
+        n = len(seeds)
+        if n <= 1:
+            return RankingScore(score=0.0, evidence=[])
+        bonus = self.PER_EXTRA_SEED * (n - 1)
+        return RankingScore(score=bonus, evidence=[f"Converges from {n} independent seeds (+{bonus:.3f})"])
