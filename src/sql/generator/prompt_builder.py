@@ -3,36 +3,18 @@ from src.planner.planner_models import QueryPlan
 from .models import SchemaContext
 
 
+def _format_columns(cols) -> str:
+    """Safely format column fields whether they are strings or lists."""
+    if isinstance(cols, list):
+        return ", ".join(cols)
+    return str(cols)
+
+
 class PromptBuilder:
     """
     Builds the complete prompt for SQL generation.
     """
 
-    # SYSTEM_PROMPT = """
-    # You are an expert PostgreSQL SQL engineer.
-
-    # Your task is to generate syntactically correct PostgreSQL SQL.
-
-    # Rules:
-    # - Use ONLY the provided schema and explicit relationships.
-    # - Never invent tables, columns, or data types.
-    # - If a table is referenced in the Relationships section, it exists and can be joined, even if its detailed column list is abbreviated.
-    # - Do NOT use any prior knowledge of MIMIC-IV, medical databases, or standard enterprise schemas.
-    # - If the requested information CANNOT be obtained using the provided tables and relationships, you must NOT invent SQL. Instead, set the "sql" field to an empty string ("") and provide a clear explanation in the "explanation" field.
-    # - Use foreign key relationships when joining tables.
-    # - Prefer explicit JOIN syntax.
-    # - Always fully qualify all table names with their respective schema prefixes
-    # - Generate valid, executable PostgreSQL SQL only.
-    # - Return ONLY valid JSON. Do not wrap the JSON in markdown code blocks (like ```json).
-    # """
-
-    # OUTPUT_FORMAT = """
-    # Return ONLY valid JSON using the exact structure below:
-    # {
-    #     "sql": "YOUR_SQL_QUERY_HERE_OR_EMPTY_STRING",
-    #     "explanation": "YOUR_EXPLANATION_HERE"
-    # }
-    # """
     SYSTEM_PROMPT = """
     You are an expert PostgreSQL SQL engineer working ONLY from the schema and
     relationship information provided in this context. You have zero prior
@@ -261,18 +243,21 @@ class PromptBuilder:
 
         for relationship in context.relationships:
 
+            source_cols = _format_columns(relationship.source_column)
+            target_cols = _format_columns(relationship.target_column)
+
             lines.append(
                 (
                     f"- "
                     f"{relationship.source_schema}."
                     f"{relationship.source_table}."
-                    f"{relationship.source_column}"
+                    f"({source_cols})"
 
                     f" -> "
 
                     f"{relationship.target_schema}."
                     f"{relationship.target_table}."
-                    f"{relationship.target_column}"
+                    f"({target_cols})"
                 )
             )
 

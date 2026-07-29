@@ -20,13 +20,10 @@ class GraphExporter:
         #
         for node in graph.nodes.values():
 
-            # nodes.append(node.id)
             nodes.append(
                 {
                     "id": node.id,
-                    "role": node.role,  # <--- This saves your new role!
-                    # Include table_info or other attributes if your downstream tasks need them
-                    # "table_info": node.table_info.model_dump() if hasattr(node.table_info, "model_dump") else node.table_info,
+                    "role": node.role,
                 }
             )
 

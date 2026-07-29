@@ -10,16 +10,29 @@ class TableRole(str, Enum):
     DIMENSION = "dimension"  # Core entity tables (like patients, admissions)
 
 
+# @dataclass
+# class GraphEdge:
+#     source: str
+#     target: str
+
+#     source_column: str | None = None
+#     target_column: str | None = None
+
+#     relationship: str = "foreign_key"
+
+#     confidence: float = 1.0
+#     evidence: list[str] = field(default_factory=list)
+
 @dataclass
 class GraphEdge:
     source: str
     target: str
 
-    source_column: str | None = None
-    target_column: str | None = None
+    # Allow single string or list of strings for composite keys
+    source_column: str | list[str] | None = None
+    target_column: str | list[str] | None = None
 
     relationship: str = "foreign_key"
-
     confidence: float = 1.0
     evidence: list[str] = field(default_factory=list)
 

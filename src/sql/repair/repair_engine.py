@@ -25,7 +25,7 @@ class RepairEngine:
       SQLCandidate
     """
 
-    MAX_RETRIES = 1
+    MAX_RETRIES = 2
 
     def __init__(self):
 
@@ -75,10 +75,10 @@ class RepairEngine:
                 prompt=prompt,
                 format="json",
             )
-            # print(f"response",response)
+            print(f"response",response)
 
             repaired = parse_llm_json(response)
-            # print(f"repaired",repaired)
+            print(f"repaired",repaired)
 
             current_sql = repaired["sql"]
 

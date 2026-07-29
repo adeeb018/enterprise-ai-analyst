@@ -1,4 +1,3 @@
-
 from src.ingestion.schema_models import TableInfo
 
 from .graph_models import GraphEdge, GraphNode, TableRole
@@ -17,6 +16,7 @@ class SchemaGraph:
     def build(
         cls,
         schema: list[TableInfo],
+        logical_edges: list[dict] | None = None,
     ) -> "SchemaGraph":
 
         graph = cls()
@@ -41,7 +41,7 @@ class SchemaGraph:
             graph.nodes[node.id] = node
 
         #
-        # Create Edges
+        # Create Edges from Foreign Keys
         #
         for table in schema:
 
@@ -75,6 +75,30 @@ class SchemaGraph:
 
                 if target in graph.nodes:
                     graph.nodes[target].incoming.append(edge)
+
+        #
+        # Create Edges from Logical / Composite Relationships
+        #
+        if logical_edges:
+            for item in logical_edges:
+                source = item["source"]
+                target = item["target"]
+                source_cols = item["source_columns"]
+                target_cols = item["target_columns"]
+
+                source_node = graph.nodes.get(source)
+                target_node = graph.nodes.get(target)
+
+                if source_node and target_node:
+                    edge = GraphEdge(
+                        source=source,
+                        target=target,
+                        source_column=source_cols,
+                        target_column=target_cols,
+                        relationship="logical_fk",
+                    )
+                    source_node.outgoing.append(edge)
+                    target_node.incoming.append(edge)
 
         return graph
     
@@ -120,7 +144,6 @@ class SchemaGraph:
         """
         table_name = table.table.lower()
         
-        # Dictionary/code lookup tables typically start with 'd_' in MIMIC or contain lookup patterns
         is_lookup = table_name.startswith("d_")
         
         if is_lookup:

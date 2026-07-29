@@ -10,6 +10,13 @@ from ..base import ValidationRule
 from ..context import ValidationContext
 
 
+def _match_columns(edge_col, query_col: str) -> bool:
+    """Helper to check if query_col matches a string or is part of a list of columns."""
+    if isinstance(edge_col, list):
+        return query_col in edge_col
+    return edge_col == query_col
+
+
 class OnClauseRule(ValidationRule):
 
     def validate(
@@ -119,8 +126,8 @@ class OnClauseRule(ValidationRule):
 
                         if (
                             edge.target == right_table
-                            and edge.source_column == left.name
-                            and edge.target_column == right.name
+                            and _match_columns(edge.source_column, left.name)
+                            and _match_columns(edge.target_column, right.name)
                         ):
                             valid = True
                             break
@@ -134,8 +141,8 @@ class OnClauseRule(ValidationRule):
 
                             if (
                                 edge.source == right_table
-                                and edge.target_column == left.name
-                                and edge.source_column == right.name
+                                and _match_columns(edge.target_column, left.name)
+                                and _match_columns(edge.source_column, right.name)
                             ):
                                 valid = True
                                 break
@@ -156,8 +163,8 @@ class OnClauseRule(ValidationRule):
 
                             if (
                                 edge.target == left_table
-                                and edge.source_column == right.name
-                                and edge.target_column == left.name
+                                and _match_columns(edge.source_column, right.name)
+                                and _match_columns(edge.target_column, left.name)
                             ):
                                 valid = True
                                 break
@@ -171,8 +178,8 @@ class OnClauseRule(ValidationRule):
 
                                 if (
                                     edge.source == left_table
-                                    and edge.target_column == right.name
-                                    and edge.source_column == left.name
+                                    and _match_columns(edge.target_column, right.name)
+                                    and _match_columns(edge.source_column, left.name)
                                 ):
                                     valid = True
                                     break

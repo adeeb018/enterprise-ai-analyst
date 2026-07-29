@@ -4,6 +4,13 @@ from src.sql.generator.models import SchemaContext
 from src.sql.repair.models import RepairPlan
 
 
+def _format_cols(cols) -> str:
+    """Safely format column fields whether they are strings or lists."""
+    if isinstance(cols, list):
+        return ", ".join(cols)
+    return str(cols)
+
+
 class RepairPromptBuilder:
     """
     Builds the repair prompt sent to the LLM.
@@ -33,7 +40,9 @@ class RepairPromptBuilder:
         if schema_context.relationships:
             lines.append("### Valid Relationships:")
             for rel in schema_context.relationships:
-                lines.append(f"- {rel.source_schema}.{rel.source_table}.{rel.source_column} = {rel.target_schema}.{rel.target_table}.{rel.target_column}")
+                src_cols = _format_cols(rel.source_column)
+                tgt_cols = _format_cols(rel.target_column)
+                lines.append(f"- {rel.source_schema}.{rel.source_table}.({src_cols}) = {rel.target_schema}.{rel.target_table}.({tgt_cols})")
 
         return "\n".join(lines)
 
