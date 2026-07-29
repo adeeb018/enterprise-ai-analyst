@@ -1,4 +1,5 @@
 from src.planner.planner_models import QueryPlan
+from src.sql.exceptions import SQLGenerationError
 from src.sql.generator.generator import SQLGenerator
 from src.sql.models import SQLCandidate
 from src.sql.repair.repair_engine import RepairEngine
@@ -48,4 +49,7 @@ class SQLEngine:
                 schema_context=schema_context,
             )
 
-        return candidate
+        raise SQLGenerationError(
+            f"Unable to generate a valid SQL after "
+            f"{self.MAX_REPAIR_ATTEMPTS} repair attempts."
+        )
