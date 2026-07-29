@@ -5,6 +5,8 @@ from src.llm.gemini_client import GeminiLLMClient
 from src.llm.llm_client import CloudLLMClient
 from src.pipeline.query_pipeline import QueryPipeline
 from src.sql.engine import SQLEngine
+from src.sql.enums import SQLStatus
+from src.sql.executor.executor import SQLExecutor
 from src.sql.generator.builder import SchemaContextBuilder
 from src.sql.generator.prompt_builder import PromptBuilder
 from src.sql.models import SQLCandidate
@@ -91,14 +93,24 @@ def main():
         #     sqlCandidate.sql = repair_result.sql
         # print("repair done\n",sqlCandidate)
 
-        sql_engine = SQLEngine()
-        candidate = sql_engine.generate(
-            plan=retrieval_result.plan,
-            question=question,
-            schema_context=schema_context,
-            graph=get_graph(),
-        )
-        print("final result",candidate)
+        # sql_engine = SQLEngine()
+        # candidate = sql_engine.generate(
+        #     plan=retrieval_result.plan,
+        #     question=question,
+        #     schema_context=schema_context,
+        #     graph=get_graph(),
+        # )
+        # print("final result",candidate)
+        sql_candidate = SQLCandidate(sql="SELECT DISTINCT p.subject_id, p.gender, p.anchor_age, p.dod, i.stay_id, i.intime, i.outtime FROM mimiciv_hosp.patients p INNER JOIN mimiciv_icu.icustays i ON p.subject_id = i.subject_id INNER JOIN mimiciv_hosp.admissions a ON i.hadm_id = a.hadm_id INNER JOIN mimiciv_hosp.diagnoses_icd d ON a.hadm_id = d.hadm_id INNER JOIN mimiciv_hosp.d_icd_diagnoses di ON d.icd_code = di.icd_code AND d.icd_version = di.icd_version WHERE di.long_title ILIKE '%diabetes%'", explanation='Replaced invalid direct join between icustays and diagnoses_icd with a join through the admissions table, using the existing foreign key relationships: icustays.hadm_id -> admissions.hadm_id and diagnoses_icd.hadm_id -> admissions.hadm_id.', status=SQLStatus.GENERATED)
+
+        # final result sql="SELECT DISTINCT p.subject_id, p.gender, p.anchor_age, p.dod, i.stay_id, i.intime, i.outtime FROM mimiciv_hosp.patients p INNER JOIN mimiciv_icu.icustays i ON p.subject_id = i.subject_id INNER JOIN mimiciv_hosp.admissions a ON i.hadm_id = a.hadm_id INNER JOIN mimiciv_hosp.diagnoses_icd d ON a.hadm_id = d.hadm_id INNER JOIN mimiciv_hosp.d_icd_diagnoses di ON d.icd_code = di.icd_code AND d.icd_version = di.icd_version WHERE di.long_title ILIKE '%diabetes%'" explanation='Replaced invalid direct join between icustays and diagnoses_icd with a join through the admissions table, using the existing foreign key relationships: icustays.hadm_id -> admissions.hadm_id and diagnoses_icd.hadm_id -> admissions.hadm_id.' status=<SQLStatus.GENERATED: 'generated'>
+        executor = SQLExecutor()
+
+        result = executor.execute(sql_candidate)
+
+
+        print(result.columns)
+        print(result.rows)
 
 
 if __name__ == "__main__":

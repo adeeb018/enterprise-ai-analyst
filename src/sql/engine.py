@@ -30,6 +30,7 @@ class SQLEngine:
             question=question,
             schema_context=schema_context,
         )
+        print(candidate)
 
         for _ in range(self.MAX_REPAIR_ATTEMPTS + 1):
 
