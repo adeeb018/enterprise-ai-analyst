@@ -107,6 +107,7 @@ class RepairPromptBuilder:
             You must return a valid JSON object matching this exact structure, with no markdown formatting or extra text outside the JSON:
             {{
               "sql": "YOUR_CORRECTED_SQL_QUERY_HERE"
+              "explanation": "YOUR_EXPLANATION_HERE"
             }}
             """
         ).strip()

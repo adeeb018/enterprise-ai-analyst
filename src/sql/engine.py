@@ -1,0 +1,51 @@
+from src.planner.planner_models import QueryPlan
+from src.sql.generator.generator import SQLGenerator
+from src.sql.models import SQLCandidate
+from src.sql.repair.repair_engine import RepairEngine
+from src.sql.validator.validator import SQLValidator
+
+
+class SQLEngine:
+
+    MAX_REPAIR_ATTEMPTS = 2
+
+    def __init__(self):
+
+        self._generator = SQLGenerator()
+        self._validator = SQLValidator()
+        self._repair_engine = RepairEngine()
+
+    def generate(
+        self,
+        *,
+        plan: QueryPlan,
+        question: str,
+        schema_context,
+        graph,
+    ) -> SQLCandidate:
+
+        candidate = self._generator.generate(
+            plan=plan,
+            question=question,
+            schema_context=schema_context,
+        )
+
+        for _ in range(self.MAX_REPAIR_ATTEMPTS + 1):
+
+            report = self._validator.validate(
+                candidate=candidate,
+                schema_context=schema_context,
+                graph=graph,
+            )
+
+            if report.is_valid:
+                return candidate
+
+            candidate = self._repair_engine.repair(
+                question=question,
+                candidate=candidate,
+                report=report,
+                schema_context=schema_context,
+            )
+
+        return candidate

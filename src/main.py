@@ -4,6 +4,7 @@ import json
 from src.llm.gemini_client import GeminiLLMClient
 from src.llm.llm_client import CloudLLMClient
 from src.pipeline.query_pipeline import QueryPipeline
+from src.sql.engine import SQLEngine
 from src.sql.generator.builder import SchemaContextBuilder
 from src.sql.generator.prompt_builder import PromptBuilder
 from src.sql.models import SQLCandidate
@@ -45,50 +46,59 @@ def main():
                 print(f"      • {evidence}")
 
 
-        builder = PromptBuilder()
+        # builder = PromptBuilder()
         schema_context_builder=SchemaContextBuilder()
         schema_context = schema_context_builder.build(retrieval_result)
 
-        prompt = builder.build(
-            text,
-            retrieval_result.plan,
-            schema_context,
-        )
+        # prompt = builder.build(
+        #     text,
+        #     retrieval_result.plan,
+        #     schema_context,
+        # )
 
-        print(prompt)
+        # print(prompt)
 
-        sql_agent = GeminiLLMClient()
-        response = sql_agent.generate(prompt=prompt, format='json')
-        print(response)
-        response_dict = parse_llm_json(response)
+        # sql_agent = GeminiLLMClient()
+        # response = sql_agent.generate(prompt=prompt, format='json')
+        # print(response)
+        # response_dict = parse_llm_json(response)
 
         # response_dict = {
         #     "sql": "SELECT DISTINCT p.subject_id, p.gender, p.anchor_age, p.dod FROM mimiciv_hosp.patients p INNER JOIN mimiciv_icu.icustays i ON p.subject_id = i.subject_id INNER JOIN mimiciv_hosp.diagnoses_icd d ON p.subject_id = d.subject_id AND i.hadm_id = d.hadm_id INNER JOIN mimiciv_hosp.d_icd_diagnoses di ON d.icd_code = di.icd_code AND d.icd_version = di.icd_version WHERE di.long_title ILIKE '%diabetes%'",
         #     "explanation": "The query retrieves patients who have a diagnosis of diabetes (resolved using diagnoses_icd and d_icd_diagnoses with an ILIKE '%diabetes%' filter) and were admitted to the ICU (by joining the icustays table)."
         #     }
         # # print(response_dict['sql'])
-        validator = SQLValidator()
-        sqlCandidate = SQLCandidate(sql=response_dict['sql'],
-                                    explanation=response_dict['explanation'])
-        report = validator.validate(candidate=sqlCandidate,
-                                    schema_context=schema_context,
-                                    graph=get_graph())
+        # validator = SQLValidator()
+        # sqlCandidate = SQLCandidate(sql=response_dict['sql'],
+        #                             explanation=response_dict['explanation'])
+        # report = validator.validate(candidate=sqlCandidate,
+        #                             schema_context=schema_context,
+        #                             graph=get_graph())
         
-        print(report)
-        repair_sql = repair_engine.RepairEngine()
+        # print(report)
+        # repair_sql = repair_engine.RepairEngine()
         
-        if not report.is_valid:
-            repair_result = repair_sql.repair(
-                question=text,
-                candidate=sqlCandidate,
-                report=report,
-                schema_context=schema_context,
-                validator = validator,
-                graph = get_graph()
-            )
+        # if not report.is_valid:
+        #     repair_result = repair_sql.repair(
+        #         question=text,
+        #         candidate=sqlCandidate,
+        #         report=report,
+        #         schema_context=schema_context,
+        #         validator = validator,
+        #         graph = get_graph()
+        #     )
 
-            sqlCandidate.sql = repair_result.sql
-        print("repair done\n",sqlCandidate)
+        #     sqlCandidate.sql = repair_result.sql
+        # print("repair done\n",sqlCandidate)
+
+        sql_engine = SQLEngine()
+        candidate = sql_engine.generate(
+            plan=retrieval_result.plan,
+            question=question,
+            schema_context=schema_context,
+            graph=get_graph(),
+        )
+        print("final result",candidate)
 
 
 if __name__ == "__main__":
