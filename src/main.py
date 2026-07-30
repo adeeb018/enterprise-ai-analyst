@@ -182,18 +182,75 @@
 #     main()
 
 
+# from pathlib import Path
+
+# from src.agent.analyst import AnalystAgent
+# from src.config.paths import TEST_DIRECTORY
+# from src.evaluation.recorder import RunRecorder
+# from src.evaluation.replay import RunReplay
+
+# def main():
+
+#     agent = AnalystAgent()
+
+#     question = "Show diabetic patients admitted to ICU."
+
+#     # result = agent.query(
+#     #     "Show diabetic patients admitted to ICU."
+#     # )
+
+#     # print(result.columns)
+#     # print(result.rows)
+
+#     recorder = RunRecorder(output_dir=TEST_DIRECTORY)
+
+#     run = agent.query(question)
+
+#     recorder.save(run, "test.json")
+
+#     loaded = RunReplay.load(Path(TEST_DIRECTORY/"test.json"))
+
+#     # assert run.question == loaded.question
+
+#     # assert run.generated_sql.sql == loaded.generated_sql.sql
+
+#     # assert run.execution_result.rows == loaded.execution_result.rows
+
+#     print("RUN ROWS:", repr(run.execution_result.rows))
+#     print("LOADED ROWS:", repr(loaded.execution_result.rows))
+
+#     assert run.execution_result.rows == loaded.execution_result.rows
+
+#     assert run.schema_context == loaded.schema_context
+
+# if __name__ == "__main__":
+#     main()
+
 from src.agent.analyst import AnalystAgent
+from src.config.paths import TEST_DIRECTORY
+from src.evaluation.dataset import BenchmarkDataset
+from src.evaluation.recorder import RunRecorder
+from src.evaluation.runner import BenchmarkRunner
+
 
 def main():
-
-    agent = AnalystAgent()
-
-    result = agent.query(
-        "Show diabetic patients admitted to ICU."
+    dataset = BenchmarkDataset.from_questions(
+        [
+            "Show diabetic patients admitted to ICU.",
+            "Average glucose level by age group.",
+        ]
     )
 
-    print(result.columns)
-    print(result.rows)
+    agent = AnalystAgent()
+    recorder = RunRecorder(output_dir=TEST_DIRECTORY)
+
+    runner = BenchmarkRunner(
+        agent,
+        recorder,
+    )
+
+    runner.run(dataset)
+
 
 if __name__ == "__main__":
     main()

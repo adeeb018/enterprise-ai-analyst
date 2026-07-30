@@ -1,3 +1,4 @@
+from src.evaluation.models import AgentRun
 from src.pipeline.query_pipeline import QueryPipeline
 from src.sql.engine import SQLEngine
 from src.sql.enums import SQLStatus
@@ -59,7 +60,15 @@ class AnalystAgent:
         for _ in range(self.MAX_EXECUTION_REPAIRS + 1):
 
             try:
-                return self._executor.execute(candidate)
+                execution_result = self._executor.execute(candidate)
+            
+                return AgentRun(
+                    question=question,
+                    retrieval_result=retrieval_result,
+                    schema_context=schema_context,
+                    generated_sql=candidate,
+                    execution_result=execution_result,
+                )
 
             except SQLExecutionError as e:
 

@@ -1,14 +1,14 @@
-from dataclasses import dataclass
+from pydantic import BaseModel
+from typing import Any
 
 
-@dataclass
-class ExecutionResult:
+class ExecutionResult(BaseModel):
 
     sql: str
 
     columns: list[str]
 
-    rows: list[tuple]
+    rows: list[list[Any]]
 
     row_count: int
 

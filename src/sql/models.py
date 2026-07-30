@@ -39,11 +39,6 @@ class SQLCandidate(BaseModel):
     sql: str
     explanation: str | None = None
     status: SQLStatus = SQLStatus.GENERATED
-    # confidence: float | None = Field(
-    #     default=None,
-    #     ge=0.0,
-    #     le=1.0,
-    # )
 
 
 class ValidationReport(BaseModel):

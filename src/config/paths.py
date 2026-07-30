@@ -13,3 +13,5 @@ GRAPH_JSON = DATA_DIR / "graph.json"
 
 QDRANT_COLLECTION = "hospital_schema"
 
+TEST_DIRECTORY = DATA_DIR/ "test"
+

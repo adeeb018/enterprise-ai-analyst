@@ -35,7 +35,7 @@ class SQLExecutor:
 
                 result = connection.execute(text(candidate.sql))
 
-                rows = result.fetchall()
+                rows = [list(row) for row in result.fetchall()]
 
                 columns = list(result.keys())
 
