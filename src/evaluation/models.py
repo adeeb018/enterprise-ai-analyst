@@ -1,3 +1,5 @@
+from typing import Optional
+
 from src.pipeline.pipeline_models import RetrievalResult
 from src.sql.generator.models import SchemaContext
 from src.sql.executor.models import ExecutionResult
@@ -8,13 +10,15 @@ class AgentRun(BaseModel):
 
     question: str
 
-    retrieval_result: RetrievalResult
+    retrieval_result: Optional[RetrievalResult] = None
 
-    schema_context: SchemaContext
+    schema_context: Optional[SchemaContext] = None
 
-    generated_sql: SQLCandidate
+    generated_sql: Optional[SQLCandidate] = None      
+    
+    execution_result: Optional[ExecutionResult] = None
 
-    execution_result: ExecutionResult
+    error: Optional[str] = None
 
 
 class BenchmarkQuestion(BaseModel):

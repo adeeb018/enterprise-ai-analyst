@@ -70,6 +70,7 @@ data/
 !data/mimic/.gitkeep
 !data/schema/.gitkeep
 !data/evaluation/.gitkeep
+!data/test/dataset/mimiciv_demo.json
 
 # Generated outputs
 outputs/

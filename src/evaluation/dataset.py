@@ -1,3 +1,6 @@
+import json
+from pathlib import Path
+
 from src.evaluation.models import BenchmarkQuestion
 
 
@@ -8,6 +11,18 @@ class BenchmarkDataset:
         questions: list[BenchmarkQuestion],
     ):
         self._questions = questions
+
+    @classmethod
+    def from_json(
+        cls,
+        path: str | Path,
+    ) -> "BenchmarkDataset":
+        path = Path(path)
+        raw_data = json.loads(path.read_text(encoding="utf-8"))
+        
+        # Parses each dictionary from the JSON into a BenchmarkQuestion model
+        questions = [BenchmarkQuestion(**item) for item in raw_data]
+        return cls(questions)
 
     @classmethod
     def from_questions(

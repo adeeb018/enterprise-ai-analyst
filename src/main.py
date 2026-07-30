@@ -226,20 +226,27 @@
 # if __name__ == "__main__":
 #     main()
 
+from pathlib import Path
+
 from src.agent.analyst import AnalystAgent
 from src.config.paths import TEST_DIRECTORY
 from src.evaluation.dataset import BenchmarkDataset
+from src.evaluation.loader import RunLoader
 from src.evaluation.recorder import RunRecorder
+from src.evaluation.replay import ReplayEngine
 from src.evaluation.runner import BenchmarkRunner
 
 
 def main():
-    dataset = BenchmarkDataset.from_questions(
-        [
-            "Show diabetic patients admitted to ICU.",
-            "Average glucose level by age group.",
-        ]
-    )
+    # dataset = BenchmarkDataset.from_questions(
+    #     [
+    #         "Show diabetic patients admitted to ICU.",
+    #         "Average glucose level by age group.",
+    #     ]
+    # )
+
+    benchmark_file = Path(TEST_DIRECTORY/"dataset/mimiciv_demo.json")
+    dataset = BenchmarkDataset.from_json(benchmark_file)
 
     agent = AnalystAgent()
     recorder = RunRecorder(output_dir=TEST_DIRECTORY)
@@ -250,6 +257,21 @@ def main():
     )
 
     runner.run(dataset)
+    print("Benchmark run completed successfully.")
+
+    # loader = RunLoader()
+    # run = loader.load(TEST_DIRECTORY/"001.json")
+
+    # replay = ReplayEngine(agent)
+
+    # # result = replay.replay_execution(run)
+    # retrieval = replay.replay_retrieval(
+    #     run.question
+    # )
+    # print(retrieval.plan)
+    # replay.replay_sql_generation(run)
+    # replay.replay_schema_context(run.retrieval_result)
+    # replay.replay_retrieval(run.question)
 
 
 if __name__ == "__main__":
