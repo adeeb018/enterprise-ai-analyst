@@ -42,3 +42,10 @@ class SQLStatus(str, Enum):
 class ExecutionStatus(str, Enum):
     SUCCESS = "success"
     FAILED = "failed"
+
+
+class ValidationDecision(Enum):
+    VALID = "valid"
+    REPAIR_SQL = "repair_sql"
+    RETRIEVE_MORE_SCHEMA = "retrieve_more_schema"
+    FATAL = "fatal"

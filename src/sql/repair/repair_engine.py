@@ -1,3 +1,4 @@
+from src.graph.schema_graph import SchemaGraph
 from src.llm.llm_client import CloudLLMClient
 from src.sql.models import (
     SQLCandidate,
@@ -36,12 +37,14 @@ class RepairEngine:
         candidate: SQLCandidate,
         report: ValidationReport,
         schema_context,
+        graph: SchemaGraph = None
     ) -> SQLCandidate:
 
         plan = self._planner.create_plan(
             question=question,
             sql=candidate.sql,
             report=report,
+            graph=graph
         )
 
         prompt = self._prompt_builder.build(

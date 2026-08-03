@@ -152,3 +152,44 @@ class SchemaGraph:
             return TableRole.DIMENSION
         else:
             return TableRole.FACT
+        
+    def find_shortest_path(self, source_id: str, target_id: str) -> list[str] | None:
+        """
+        Finds the shortest path of table IDs between a source table and target table 
+        using Breadth-First Search (BFS) across outgoing and incoming graph edges.
+        """
+        if source_id not in self.nodes or target_id not in self.nodes:
+            return None
+        
+        if source_id == target_id:
+            return [source_id]
+
+        queue = [[source_id]]
+        visited = {source_id}
+
+        while queue:
+            path = queue.pop(0)
+            current_id = path[-1]
+
+            if current_id == target_id:
+                return path
+
+            node = self.nodes.get(current_id)
+            if not node:
+                continue
+
+            # Traverse both outgoing and incoming edges to treat relationships bidirectionally
+            neighbors = set()
+            for edge in node.outgoing:
+                neighbors.add(edge.target)
+            for edge in node.incoming:
+                neighbors.add(edge.source)
+
+            for neighbor_id in neighbors:
+                if neighbor_id not in visited:
+                    visited.add(neighbor_id)
+                    new_path = list(path)
+                    new_path.append(neighbor_id)
+                    queue.append(new_path)
+
+        return None

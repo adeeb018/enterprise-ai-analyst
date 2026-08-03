@@ -44,6 +44,11 @@ class SQLGenerator:
         )
 
         result = parse_llm_json(response)
+        # print("result1",result["sql"])
+        # print("explanation",result.get("explanation"))
+
+        # return SQLCandidate(sql="SELECT MAX(le.valuenum) AS max_creatinine FROM mimiciv_hosp.labevents le INNER JOIN mimiciv_hosp.d_labitems dl ON le.itemid = dl.itemid INNER JOIN mimiciv_icu.icustays ie ON le.subject_id = ie.subject_id AND le.hadm_id = ie.hadm_id WHERE dl.label ILIKE '%creatinine%'",
+        #              explanation="This query finds the maximum creatinine lab value for ICU admissions by joining the labevents table with the d_labitems table (to filter for creatinine using ILIKE) and the icustays table (to restrict the results to ICU admissions via subject_id and hadm_id)")
 
         return SQLCandidate(
             sql=result["sql"],

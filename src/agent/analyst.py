@@ -6,9 +6,10 @@ from src.sql.enums import SQLStatus
 from src.sql.executor.executor import SQLExecutor
 from src.sql.execution.repair_engine import ExecutionRepairEngine
 from src.sql.exceptions import SQLExecutionError
+from src.sql.executor.models import ExecutionResult
 from src.sql.generator.builder import SchemaContextBuilder
 from src.sql.generator.models import SchemaContext
-from src.sql.models import ExecutionResult, SQLCandidate
+from src.sql.models import SQLCandidate
 from src.utils.helper import get_graph
 
 
@@ -70,9 +71,12 @@ class AnalystAgent:
         for _ in range(self.MAX_EXECUTION_REPAIRS + 1):
 
             try:
+                breakpoint()
                 return self._executor.execute(candidate) 
 
             except SQLExecutionError as e:
+
+                breakpoint()
 
                 candidate = self._execution_repair.repair(
                     question=question,
@@ -80,6 +84,8 @@ class AnalystAgent:
                     error=str(e),
                     schema_context=schema_context,
                 )
+
+        breakpoint()
 
         raise SQLExecutionError(
             "Unable to execute SQL after repair attempts."
@@ -142,3 +148,43 @@ class AnalystAgent:
         #     explanation="Intentionally flawed SQL with a fake column to trigger an execution exception for testing.",
         #     status=SQLStatus.GENERATED
         # )
+
+    def generate_candidate(
+        self,
+        question: str,
+        retrieval_result: RetrievalResult,
+        schema_context: SchemaContext,
+    ) -> SQLCandidate:
+
+        return self._sql_engine.generate_candidate(
+            plan=retrieval_result.plan,
+            question=question,
+            schema_context=schema_context,
+    )
+
+    def validate_candidate(
+        self,
+        candidate: SQLCandidate,
+        schema_context: SchemaContext,
+    ):
+
+        return self._sql_engine.validate_candidate(
+            candidate=candidate,
+            schema_context=schema_context,
+            graph=self._graph,
+        )
+    
+    def repair_candidate(
+        self,
+        question: str,
+        candidate: SQLCandidate,
+        report,
+        schema_context: SchemaContext,
+    ):
+
+        return self._sql_engine.repair_candidate(
+            question=question,
+            candidate=candidate,
+            report=report,
+            schema_context=schema_context,
+        )

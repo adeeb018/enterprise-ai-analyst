@@ -61,14 +61,14 @@ agent = AnalystAgent()
 
 result = graph.invoke(
     {
-        "question": "Show diabetic patients admitted to ICU"
+        "question": "Find the maximum lab value for creatinine for ICU admissions"
     },
-    config={
-        "configurable": {
-            "agent": agent,
-        }
-    },
+    # config={
+    #     "configurable": {
+    #         "agent": agent,
+    #     }
+    # },
 )
-
-print(result["run"])
+print(result["run"].generated_sql)
+print(result["run"].error)
 

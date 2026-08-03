@@ -105,6 +105,10 @@ class OnClauseRule(ValidationRule):
                                 f"'{left_table}' and '{right_table}'."
                             ),
                             location=predicate.sql(),
+                            metadata={
+                                "table_a": left_table,
+                                "table_b": right_table,
+                            },
                         )
                     )
 
@@ -195,6 +199,10 @@ class OnClauseRule(ValidationRule):
                                 "relationship."
                             ),
                             location=predicate.sql(),
+                            metadata={
+                                "table_a": left_table,
+                                "table_b": right_table,
+                            },
                         )
                     )
 

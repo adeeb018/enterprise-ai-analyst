@@ -3,6 +3,7 @@ from pydantic import BaseModel, Field
 from src.pipeline.pipeline_models import RetrievalResult
 from src.planner.planner_models import QueryPlan
 from src.sql.enums import ExecutionStatus, SQLStatus, ValidationIssueType, ValidationSeverity
+from src.sql.executor.models import ExecutionResult
 
 
 class ValidationIssue(BaseModel):
@@ -14,6 +15,7 @@ class ValidationIssue(BaseModel):
     message: str
     location: str | None = None
     suggestion: str | None = None
+    metadata: dict = Field(default_factory=dict)
 
 
 class SQLPlan(BaseModel):
@@ -70,21 +72,6 @@ class ValidationReport(BaseModel):
         )
     
 
-class ExecutionResult(BaseModel):
-    """
-    Result produced after executing a SQL query.
-    """
-
-    status: ExecutionStatus
-    rows: list[dict] = Field(default_factory=list)
-    columns: list[str] = Field(default_factory=list)
-    execution_time_ms: float | None = None
-    error: str | None = None
-
-    @property
-    def row_count(self) -> int:
-        return len(self.rows)
-    
 
 class AnswerResult(BaseModel):
     """

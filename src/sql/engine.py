@@ -16,6 +16,51 @@ class SQLEngine:
         self._validator = SQLValidator()
         self._repair_engine = RepairEngine()
 
+
+    def generate_candidate(
+        self,
+        *,
+        plan: QueryPlan,
+        question: str,
+        schema_context,
+    ) -> SQLCandidate:
+
+        return self._generator.generate(
+            plan=plan,
+            question=question,
+            schema_context=schema_context,
+        )
+    
+    def validate_candidate(
+        self,
+        *,
+        candidate: SQLCandidate,
+        schema_context,
+        graph,
+    ):
+
+        return self._validator.validate(
+            candidate=candidate,
+            schema_context=schema_context,
+            graph=graph,
+        )
+    
+    def repair_candidate(
+        self,
+        *,
+        question: str,
+        candidate: SQLCandidate,
+        report,
+        schema_context,
+    ):
+
+        return self._repair_engine.repair(
+            question=question,
+            candidate=candidate,
+            report=report,
+            schema_context=schema_context,
+        )
+
     def generate(
         self,
         *,
