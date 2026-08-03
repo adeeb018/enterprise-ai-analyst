@@ -62,15 +62,36 @@ dist/
 # ===========================
 # Local Database/Data
 # ===========================
-data/mimic/
-data/schema/
-data/evaluation/
-data/
 
-!data/mimic/.gitkeep
-!data/schema/.gitkeep
-!data/evaluation/.gitkeep
+# 1. Ignore everything inside the data directory by default
+data/*
+
+# 2. Open the specific folder path needed to reach your json file
+
+data/test/*
+data/test/dataset/*
+
+data/mimic/*
+data/schema/*
+data/evaluation/*
+
+
+!data/test/
+!data/test/dataset/
 !data/test/dataset/mimiciv_demo.json
+
+# 3. Ignore everything else that might be added inside test/ or dataset/
+
+
+# 4. Re-allow your specific json file and .gitkeep files
+!data/mimic/
+!data/mimic/.gitkeep
+
+!data/schema/
+!data/schema/.gitkeep
+
+!data/evaluation/
+!data/evaluation/.gitkeep
 
 # Generated outputs
 outputs/

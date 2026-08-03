@@ -1,0 +1,42 @@
+[
+  {
+    "id": "001",
+    "question": "Show diabetic patients admitted to ICU"
+  },
+  {
+    "id": "002",
+    "question": "Find the average heart rate of patients with sepsis"
+  },
+  {
+    "id": "003",
+    "question": "List female patients over 65 years old admitted to the emergency department"
+  },
+  {
+    "id": "004",
+    "question": "Show patients who underwent coronary artery bypass graft surgery"
+  },
+  {
+    "id": "005",
+    "question": "Find the maximum lab value for creatinine for ICU admissions"
+  },
+  {
+    "id": "006",
+    "question": "List prescriptions given to patients diagnosed with pneumonia"
+  },
+  {
+    "id": "007",
+    "question": "Show patients who had fluid output recorded during their ICU stay"
+  },
+  {
+    "id": "008",
+    "question": "Find the mortality rate of patients admitted with myocardial infarction"
+  },
+  {
+    "id": "009",
+    "question": "List microbiology culture results for septic shock patients"
+  },
+  {
+    "id": "010",
+    "question": "Show demographic details and length of stay for ICU patients"
+  }
+]
