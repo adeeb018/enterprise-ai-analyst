@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "fastapi>=0.139.0",
+    "langgraph>=1.2.10",
     "matplotlib>=3.11.0",
     "ollama>=0.6.2",
     "openai>=2.47.0",
