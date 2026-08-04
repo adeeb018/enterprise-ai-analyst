@@ -1,10 +1,10 @@
-from src.retrieval.schema_models import (
+from src.ingestion.schema_models import (
     ColumnInfo,
     ForeignKeyInfo,
     TableInfo,
 )
 
-from src.retrieval.schema_exporter import SchemaExporter
+from src.ingestion.schema_exporter import SchemaExporter
 
 from sqlalchemy import inspect
 
@@ -104,32 +104,3 @@ class SchemaExtractor:
                 database_schema.append(table)
 
         return database_schema
-
-
-def main():
-
-    extractor = SchemaExtractor()
-
-    schema = extractor.extract_schema()
-
-    print(f"Extracted {len(schema)} tables\n")
-
-    # for table in schema:
-
-    #     print(f"{table.schema_name}.{table.table}")
-
-    #     print(f"Columns : {len(table.columns)}")
-    #     print(f"PKs     : {len(table.primary_keys)}")
-    #     print(f"FKs     : {len(table.foreign_keys)}")
-
-    #     print("-" * 40)
-    
-    exporter = SchemaExporter()
-
-    exporter.export(schema)
-
-    print(f"\nExtracted {len(schema)} tables")
-
-
-if __name__ == "__main__":
-    main()

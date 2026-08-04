@@ -6,9 +6,18 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "fastapi>=0.139.0",
+    "langgraph>=1.2.10",
+    "matplotlib>=3.11.0",
+    "ollama>=0.6.2",
+    "openai>=2.47.0",
+    "pandas>=3.0.3",
     "psycopg[binary]>=3.3.4",
     "pydantic>=2.13.4",
     "pydantic-settings>=2.14.2",
     "python-dotenv>=1.2.2",
+    "qdrant-client>=1.18.0",
+    "sentence-transformers>=5.6.0",
     "sqlalchemy>=2.0.51",
+    "sqlglot>=30.13.0",
+    "tqdm>=4.68.4",
 ]
