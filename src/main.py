@@ -71,4 +71,5 @@ result = graph.invoke(
 )
 print(result["run"].generated_sql)
 print(result["run"].error)
+print(result["run"].answer)
 

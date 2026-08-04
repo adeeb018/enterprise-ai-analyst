@@ -79,7 +79,7 @@ def execute_sql_node(
 
     # agent: AnalystAgent = config["configurable"]["agent"]
 
-    breakpoint()
+    # breakpoint()
 
     execution_result = agent.execute_sql(
         question=state["question"],
@@ -105,6 +105,7 @@ def build_run_node(
         generated_sql=state["candidate"],
         execution_result=execution_result,
         success=not has_error,
+        answer=state["answer"],
         error=state.get("error") if has_error else None,
     )
 
@@ -134,7 +135,7 @@ def validate_candidate_node(state, config):
         candidate=state["candidate"],
         schema_context=state["schema_context"],
     )
-    breakpoint()
+    # breakpoint()
     
     decision_builder = ValidationDecisionBuilder()
     decision = decision_builder.build(report)
@@ -162,4 +163,19 @@ def repair_candidate_node(state, config):
     return {
         "candidate": candidate,
         "repair_count": new_repair_count,
+    }
+
+def answer_node(
+    state,
+    config,
+):
+
+    answer = agent.generate_answer(
+        question=state["question"],
+        candidate=state["candidate"],
+        execution_result=state["execution_result"],
+    )
+
+    return {
+        "answer": answer,
     }

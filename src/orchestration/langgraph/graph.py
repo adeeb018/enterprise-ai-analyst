@@ -4,6 +4,7 @@ from src.agent.state import AnalystState
 from src.orchestration.langgraph.routers import validation_router
 
 from .nodes import (
+    answer_node,
     generate_candidate_node,
     repair_candidate_node,
     retrieve_more_schema_node,
@@ -53,9 +54,15 @@ def build_graph():
     )
 
     builder.add_node(
+        "answer_node",
+        answer_node,
+    )
+
+    builder.add_node(
         "build_run",
         build_run_node,
     )
+    
 
     #
     # Build Graph
@@ -97,8 +104,14 @@ def build_graph():
 
     builder.add_edge(
         "execute_sql",
-        "build_run",
+        "answer_node",
     )
+
+    builder.add_edge(
+            "answer_node",
+            "build_run",
+        )
+
 
     builder.add_edge(
         "build_run",

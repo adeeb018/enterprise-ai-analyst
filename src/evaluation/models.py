@@ -1,6 +1,7 @@
 from typing import Optional
 
 from src.pipeline.pipeline_models import RetrievalResult
+from src.sql.answer.models import AnalystAnswer
 from src.sql.generator.models import SchemaContext
 from src.sql.executor.models import ExecutionResult
 from src.sql.models import SQLCandidate
@@ -17,6 +18,8 @@ class AgentRun(BaseModel):
     generated_sql: Optional[SQLCandidate] = None      
     
     execution_result: Optional[ExecutionResult] = None
+
+    answer: Optional[AnalystAnswer] = None
 
     error: Optional[str] = None
 

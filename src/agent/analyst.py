@@ -1,6 +1,7 @@
 from src.evaluation.models import AgentRun
 from src.pipeline.pipeline_models import RetrievalResult
 from src.pipeline.query_pipeline import QueryPipeline
+from src.sql.answer.generator import AnswerGenerator
 from src.sql.engine import SQLEngine
 from src.sql.executor.executor import SQLExecutor
 from src.sql.execution.repair_engine import ExecutionRepairEngine
@@ -29,6 +30,8 @@ class AnalystAgent:
         self._schema_context_builder = SchemaContextBuilder()
 
         self._graph = get_graph()
+
+        self._answer_generator = AnswerGenerator()
 
     def retrieve(
         self,
@@ -83,12 +86,12 @@ class AnalystAgent:
         for _ in range(self.MAX_EXECUTION_REPAIRS + 1):
 
             try:
-                breakpoint()
+                # breakpoint()
                 return self._executor.execute(candidate) 
 
             except SQLExecutionError as e:
 
-                breakpoint()
+                # breakpoint()
 
                 candidate = self._execution_repair.repair(
                     question=question,
@@ -97,7 +100,7 @@ class AnalystAgent:
                     schema_context=schema_context,
                 )
 
-        breakpoint()
+        # breakpoint()
 
         raise SQLExecutionError(
             "Unable to execute SQL after repair attempts."
@@ -128,12 +131,19 @@ class AnalystAgent:
                 schema_context,
             )
 
+            answer = self.generate_answer(
+                question,
+                candidate,
+                execution_result,
+            )
+
             return AgentRun(
                 question=question,
                 retrieval_result=retrieval_result,
                 schema_context=schema_context,
                 generated_sql=candidate,
                 execution_result=execution_result,
+                answer=answer,
             )
         
         except Exception as e:
@@ -144,6 +154,7 @@ class AnalystAgent:
                 schema_context=locals().get("schema_context"),
                 generated_sql=locals().get("candidate"),
                 execution_result=None,
+                answer=None,
                 success=False,
                 error=str(e),
             ) 
@@ -199,4 +210,17 @@ class AnalystAgent:
             candidate=candidate,
             report=report,
             schema_context=schema_context,
+        )
+
+    def generate_answer(
+        self,
+        question: str,
+        candidate,
+        execution_result,
+    ):
+
+        return self._answer_generator.generate(
+            question=question,
+            candidate=candidate,
+            execution_result=execution_result,
         )
