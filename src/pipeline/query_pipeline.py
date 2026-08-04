@@ -3,6 +3,7 @@ import json
 from src.graph.graph_loader import GraphLoader
 from src.graph.schema_graph import SchemaGraph
 from src.ingestion.schema_models import TableInfo
+from src.pipeline.failure_analyzer import FailureAnalyzer
 from src.pipeline.pipeline_models import RetrievalResult
 from src.planner.planner import Planner
 from src.planner.planner_models import QueryPlan
@@ -24,25 +25,8 @@ class QueryPipeline:
         self.graph = get_graph()
         self.expander = GraphExpander(graph=self.graph)
         self.ranker = ContextRanker(graph=self.graph)
+        self._failure_analyzer = FailureAnalyzer()
 
-
-    # def _build_expander(
-    #     self,
-    # ) -> GraphExpander:
-
-    #     schema = [
-    #         TableInfo.model_validate(item)
-    #         for item in json.loads(
-    #             ENRICHED_SCHEMA_JSON.read_text()
-    #         )
-    #     ]
-
-    #     graph = GraphLoader().load(
-    #         graph_path=GRAPH_JSON,
-    #         schema=schema,
-    #     )
-
-    #     return GraphExpander(graph)
 
     def retrieve_schema(
         self,
@@ -92,28 +76,88 @@ class QueryPipeline:
             reverse=True,
         )
 
-        expanded_context = self.expander.expand(
+        return self._process_retrieval(
+            plan=plan,
+            question=question,
             retrieved_tables=all_results,
+        )
+
+    def _process_retrieval(
+        self,
+        *,
+        plan: QueryPlan,
+        question: str,
+        retrieved_tables: list[RetrievedChunk],
+    ) -> RetrievalResult:
+
+        expanded_context = self.expander.expand(
+            retrieved_tables=retrieved_tables,
         )
 
         ranked_context = self.ranker.rank(
             expanded_context,
-            query=question
+            query=question,
         )
 
         return RetrievalResult(
             plan=plan,
-            retrieved_tables=all_results,
+            retrieved_tables=retrieved_tables,
             expanded_context=expanded_context,
-            ranked_context= ranked_context
+            ranked_context=ranked_context,
         )
 
     def retrieve_more_schema(
         self,
         *,
         question: str,
-        schema_context: SchemaContext,
+        retrieval_result: RetrievalResult,
         validation_report: ValidationReport,
+        top_k: int = 2,
     ) -> RetrievalResult:
         
-        return self.retrieve_schema(question)
+        hints = self._failure_analyzer.analyze(
+            validation_report
+        )
+
+        additional_results = []
+
+        seen = {
+            f"{r.schema_name}.{r.table}"
+            for r in retrieval_result.retrieved_tables
+        }
+
+        for hint in hints:
+
+            results = self.retriever.retrieve(
+                hint,
+                limit=top_k,
+            )
+
+            for result in results:
+
+                table_id = (
+                    f"{result.schema_name}.{result.table}"
+                )
+
+                if table_id in seen:
+                    continue
+
+                seen.add(table_id)
+
+                additional_results.append(result)
+
+        merged_results = (
+            retrieval_result.retrieved_tables
+            + additional_results
+        )
+
+        merged_results.sort(
+            key=lambda r: r.score,
+            reverse=True,
+        )
+
+        return self._process_retrieval(
+            plan=retrieval_result.plan,
+            question=question,
+            retrieved_tables=merged_results,
+        )

@@ -8,7 +8,7 @@ from src.sql.exceptions import SQLExecutionError
 from src.sql.executor.models import ExecutionResult
 from src.sql.generator.builder import SchemaContextBuilder
 from src.sql.generator.models import SchemaContext
-from src.sql.models import SQLCandidate
+from src.sql.models import SQLCandidate, ValidationReport
 from src.utils.helper import get_graph
 
 
@@ -40,13 +40,13 @@ class AnalystAgent:
     def retrieve_more_schema(
         self,
         question: str,
-        schema_context: SchemaContext,
-        validation_report,
+        retrieval_result: RetrievalResult,
+        validation_report: ValidationReport,
     ) -> RetrievalResult:
 
         return self._pipeline.retrieve_more_schema(
             question=question,
-            schema_context=schema_context,
+            retrieval_result=retrieval_result,
             validation_report=validation_report,
         )
     

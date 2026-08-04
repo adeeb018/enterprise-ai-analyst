@@ -29,7 +29,7 @@ def retrieve_more_schema_node(
 
     retrieval_result = agent.retrieve_more_schema(
         question=state["question"],
-        schema_context=state["schema_context"],
+        retrieval_result=state["retrieval_result"],
         validation_report=state["validation_report"],
     )
 
