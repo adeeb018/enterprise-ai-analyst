@@ -6,6 +6,7 @@ from src.orchestration.langgraph.routers import validation_router
 from .nodes import (
     generate_candidate_node,
     repair_candidate_node,
+    retrieve_more_schema_node,
     retrieve_node,
     schema_context_node,
     # generate_sql_node,
@@ -35,6 +36,11 @@ def build_graph():
     builder.add_node("generate_candidate", generate_candidate_node)
     builder.add_node("validate_candidate", validate_candidate_node)
     builder.add_node("repair_candidate", repair_candidate_node)
+
+    builder.add_node(
+        "retrieve_more_schema",
+        retrieve_more_schema_node,
+    )
 
     # builder.add_node(
     #     "generate_sql",
@@ -77,6 +83,7 @@ def build_graph():
         {
             "execute_sql": "execute_sql",
             "repair_candidate": "repair_candidate",
+            "retrieve_more_schema": "retrieve_more_schema",
             "max_retries_exceeded": "execute_sql",
         }
     )
@@ -86,6 +93,7 @@ def build_graph():
     #     "generate_sql",
     #     "execute_sql",
     # )
+    builder.add_edge("retrieve_more_schema", "schema_context",)
 
     builder.add_edge(
         "execute_sql",

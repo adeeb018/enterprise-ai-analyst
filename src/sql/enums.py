@@ -8,13 +8,7 @@ class ValidationSeverity(str, Enum):
 
 
 class ValidationIssueType(str, Enum):
-    MISSING_TABLE = "missing_table"
-    MISSING_COLUMN = "missing_column"
     INVALID_JOIN = "invalid_join"
-    INVALID_AGGREGATION = "invalid_aggregation"
-    INVALID_FUNCTION = "invalid_function"
-    INVALID_SYNTAX = "invalid_syntax"
-    UNKNOWN = "unknown"
     SQL_SYNTAX_ERROR = "sql_syntax_error"
     UNKNOWN_COLUMN = "unknown_column"
     UNKNOWN_ALIAS = "unknown_alias"
@@ -31,17 +25,17 @@ class ValidationIssueType(str, Enum):
     INVALID_ON_CLAUSE = "invalid_on_clause"
 
 
-class SQLStatus(str, Enum):
-    GENERATED = "generated"
-    VALIDATED = "validated"
-    REPAIRED = "repaired"
-    EXECUTED = "executed"
-    FAILED = "failed"
+# class SQLStatus(str, Enum):
+#     GENERATED = "generated"
+#     VALIDATED = "validated"
+#     REPAIRED = "repaired"
+#     EXECUTED = "executed"
+#     FAILED = "failed"
 
 
-class ExecutionStatus(str, Enum):
-    SUCCESS = "success"
-    FAILED = "failed"
+# class ExecutionStatus(str, Enum):
+#     SUCCESS = "success"
+#     FAILED = "failed"
 
 
 class ValidationDecision(Enum):

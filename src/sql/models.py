@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field
 
 from src.pipeline.pipeline_models import RetrievalResult
 from src.planner.planner_models import QueryPlan
-from src.sql.enums import ExecutionStatus, SQLStatus, ValidationIssueType, ValidationSeverity
+from src.sql.enums import ValidationIssueType, ValidationSeverity
 from src.sql.executor.models import ExecutionResult
 
 
@@ -40,7 +40,6 @@ class SQLCandidate(BaseModel):
 
     sql: str
     explanation: str | None = None
-    status: SQLStatus = SQLStatus.GENERATED
 
 
 class ValidationReport(BaseModel):

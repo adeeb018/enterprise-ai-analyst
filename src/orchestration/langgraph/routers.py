@@ -1,22 +1,32 @@
 from src.agent.state import AnalystState
-from src.sql.enums import ValidationDecision
+from src.sql.enums import  ValidationIssueType
+
+RETRIEVE_MORE_SCHEMA_ISSUES = {
+    ValidationIssueType.UNKNOWN_TABLE,
+    ValidationIssueType.UNKNOWN_COLUMN,
+
+}
 
 def validation_router(state: AnalystState) -> str:
-    decision = state.get("validation_decision")
+    report = state.get("validation_report")
     # If valid, proceed to execution
-    if decision == ValidationDecision.VALID:
+    if report.is_valid:
         return "execute_sql"
 
-    # Enforce max repair attempts limit
-    max_repairs = 1
-    current_repairs = state.get("repair_count", 0)
-    print(current_repairs)
+    issue_types = {
+        issue.issue_type
+        for issue in report.issues
+    }
 
-    if current_repairs >= max_repairs:
-        return "max_retries_exceeded" # Or route directly to build_run with an error
+    if issue_types & RETRIEVE_MORE_SCHEMA_ISSUES:
+        return "retrieve_more_schema"
+    
+    repair_count = state.get(
+        "repair_count",
+        0,
+    )
 
-    # Otherwise, follow the repair decision path
-    if decision == ValidationDecision.REPAIR_SQL:
-        return "repair_candidate"
+    if repair_count >= 1:
+        return "max_retries_exceeded"
 
-    return "max_retries_exceeded" # Fallback safety guard
+    return "repair_candidate" # Fallback safety guard

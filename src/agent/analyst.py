@@ -2,7 +2,6 @@ from src.evaluation.models import AgentRun
 from src.pipeline.pipeline_models import RetrievalResult
 from src.pipeline.query_pipeline import QueryPipeline
 from src.sql.engine import SQLEngine
-from src.sql.enums import SQLStatus
 from src.sql.executor.executor import SQLExecutor
 from src.sql.execution.repair_engine import ExecutionRepairEngine
 from src.sql.exceptions import SQLExecutionError
@@ -37,6 +36,19 @@ class AnalystAgent:
     ) -> RetrievalResult:
 
         return self._pipeline.retrieve_schema(question)
+    
+    def retrieve_more_schema(
+        self,
+        question: str,
+        schema_context: SchemaContext,
+        validation_report,
+    ) -> RetrievalResult:
+
+        return self._pipeline.retrieve_more_schema(
+            question=question,
+            schema_context=schema_context,
+            validation_report=validation_report,
+        )
     
     def build_schema_context(
         self,

@@ -22,6 +22,21 @@ def retrieve_node(
         "retrieval_result": retrieval_result,
     }
 
+def retrieve_more_schema_node(
+    state: AnalystState,
+    config,
+):
+
+    retrieval_result = agent.retrieve_more_schema(
+        question=state["question"],
+        schema_context=state["schema_context"],
+        validation_report=state["validation_report"],
+    )
+
+    return {
+        "retrieval_result": retrieval_result,
+    }
+
 
 def schema_context_node(
     state: AnalystState,

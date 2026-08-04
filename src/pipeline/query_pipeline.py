@@ -10,6 +10,8 @@ from src.retrieval.ranking.context_ranker import ContextRanker
 from src.retrieval.graph_expander import GraphExpander
 from src.retrieval.query_models import RetrievedChunk
 from src.retrieval.retriever import Retriever
+from src.sql.generator.models import SchemaContext
+from src.sql.models import ValidationReport
 from src.utils.helper import get_graph
 
 
@@ -105,3 +107,13 @@ class QueryPipeline:
             expanded_context=expanded_context,
             ranked_context= ranked_context
         )
+
+    def retrieve_more_schema(
+        self,
+        *,
+        question: str,
+        schema_context: SchemaContext,
+        validation_report: ValidationReport,
+    ) -> RetrievalResult:
+        
+        return self.retrieve_schema(question)
