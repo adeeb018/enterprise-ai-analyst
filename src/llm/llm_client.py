@@ -42,4 +42,7 @@ class CloudLLMClient:
 
         response = self.client.chat.completions.create(**kwargs)
 
-        return response.choices[0].message.content.strip()
+        content = response.choices[0].message.content
+        if content is None:
+            return ""  # Or handle the empty case gracefully
+        return content.strip()

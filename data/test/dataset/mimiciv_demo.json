@@ -38,5 +38,165 @@
   {
     "id": "010",
     "question": "Show demographic details and length of stay for ICU patients"
+  },
+  {
+    "id": "011",
+    "question": "Find the top 5 most frequently prescribed medications in the ICU"
+  },
+  {
+    "id": "012",
+    "question": "List patients who experienced acute kidney injury during their hospital stay"
+  },
+  {
+    "id": "013",
+    "question": "Calculate the average length of stay for patients admitted to the cardiac surgery recovery unit"
+  },
+  {
+    "id": "014",
+    "question": "Show blood pressure measurements for hypertensive patients during their first 24 hours in the ICU"
+  },
+  {
+    "id": "015",
+    "question": "List patients who received mechanical ventilation and had a diagnosis of respiratory failure"
+  },
+  {
+    "id": "016",
+    "question": "Find the minimum and maximum body temperature recorded for patients with sepsis"
+  },
+  {
+    "id": "017",
+    "question": "Show the distribution of patient admissions by insurance type and gender"
+  },
+  {
+    "id": "018",
+    "question": "List all lab events associated with potassium levels outside the normal range for ICU admissions"
+  },
+  {
+    "id": "019",
+    "question": "Find patients who had multiple ICU admissions during the same hospital stay"
+  },
+  {
+    "id": "020",
+    "question": "Show the average age of patients categorized by their primary hospital discharge destination"
+  },
+  {
+    "id": "021",
+    "question": "List all patients diagnosed with heart failure who were prescribed beta blockers"
+  },
+  {
+    "id": "022",
+    "question": "Find the total number of hospital admissions per year from the dataset"
+  },
+  {
+    "id": "023",
+    "question": "Show the top 10 most common diagnosis ICD codes for male patients"
+  },
+  {
+    "id": "024",
+    "question": "List patients whose hospital stay lasted longer than 14 days"
+  },
+  {
+    "id": "025",
+    "question": "Find the average white blood cell count for patients with acute infection diagnoses"
+  },
+  {
+    "id": "026",
+    "question": "Show all charted input events for patients receiving intravenous insulin"
+  },
+  {
+    "id": "027",
+    "question": "List patients admitted to the medical intensive care unit with a stroke diagnosis"
+  },
+  {
+    "id": "028",
+    "question": "Find the median age of patients who died during their hospital admission"
+  },
+  {
+    "id": "029",
+    "question": "Show procedures performed on patients diagnosed with type 2 diabetes"
+  },
+  {
+    "id": "030",
+    "question": "List patients who had emergency department visits preceding their inpatient admission"
+  },
+  {
+    "id": "031",
+    "question": "Find the average hemoglobin levels for patients receiving blood transfusion procedures"
+  },
+  {
+    "id": "032",
+    "question": "Show patients who had both a diagnosis of hypertension and hyperlipidemia"
+  },
+  {
+    "id": "033",
+    "question": "List the charting items recorded most frequently during the first hour of ICU admission"
+  },
+  {
+    "id": "034",
+    "question": "Find patients with abnormal platelet counts during their stay"
+  },
+  {
+    "id": "035",
+    "question": "Show the number of distinct patients admitted per care unit type"
+  },
+  {
+    "id": "036",
+    "question": "List patients who were readmitted to the hospital within 30 days of discharge"
+  },
+  {
+    "id": "037",
+    "question": "Find the average weight and height recorded on admission for adult patients"
+  },
+  {
+    "id": "038",
+    "question": "Show patients who received vasopressor medications during critical care"
+  },
+  {
+    "id": "039",
+    "question": "List laboratory test results for patients diagnosed with diabetic ketoacidosis"
+  },
+  {
+    "id": "040",
+    "question": "Find the total fluid balance (input minus output) for ICU patients over a 24-hour window"
+  },
+  {
+    "id": "041",
+    "question": "List all financial transactions for patients enrolled in clinical trials"
+  },
+  {
+    "id": "042",
+    "question": "Show satellite telemetry tracking logs for patient transport vehicles"
+  },
+  {
+    "id": "043",
+    "question": "Find the cafeteria meal purchase history for staff members on duty"
+  },
+  {
+    "id": "044",
+    "question": "List outpatient dental appointments scheduled for discharged patients"
+  },
+  {
+    "id": "045",
+    "question": "Show vehicle parking validation records for hospital visitors"
+  },
+  {
+    "id": "046",
+    "question": "Find the weather conditions recorded outside the hospital during emergency admissions"
+  },
+  {
+    "id": "047",
+    "question": "List employee payroll deductions and tax withholding summaries"
+  },
+  {
+    "id": "048",
+    "question": "Show maintenance ticket logs for biomedical equipment in the radiology ward"
+  },
+  {
+    "id": "049",
+    "question": "Find grocery store delivery receipts submitted by hospital patients"
+  },
+  {
+    "id": "050",
+    "question": "List social media profile links for patients admitted in January"
   }
 ]
