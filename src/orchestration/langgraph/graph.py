@@ -2,6 +2,7 @@ from langgraph.graph import START, END, StateGraph
 
 from src.agent.state import AnalystState
 from src.orchestration.langgraph.routers import validation_router
+from src.utils.helper import measure_node
 
 from .nodes import (
     answer_node,
@@ -24,44 +25,15 @@ def build_graph():
     #
     # Register Nodes
     #
-    builder.add_node(
-        "retrieve",
-        retrieve_node,
-    )
-
-    builder.add_node(
-        "schema_context",
-        schema_context_node,
-    )
-
-    builder.add_node("generate_candidate", generate_candidate_node)
-    builder.add_node("validate_candidate", validate_candidate_node)
-    builder.add_node("repair_candidate", repair_candidate_node)
-
-    builder.add_node(
-        "retrieve_more_schema",
-        retrieve_more_schema_node,
-    )
-
-    # builder.add_node(
-    #     "generate_sql",
-    #     generate_sql_node,
-    # )
-
-    builder.add_node(
-        "execute_sql",
-        execute_sql_node,
-    )
-
-    builder.add_node(
-        "answer_node",
-        answer_node,
-    )
-
-    builder.add_node(
-        "build_run",
-        build_run_node,
-    )
+    builder.add_node("retrieve", measure_node("retrieve", retrieve_node))
+    builder.add_node("schema_context", measure_node("schema_context", schema_context_node))
+    builder.add_node("generate_candidate", measure_node("generate_candidate", generate_candidate_node))
+    builder.add_node("validate_candidate", measure_node("validate_candidate", validate_candidate_node))
+    builder.add_node("repair_candidate", measure_node("repair_candidate", repair_candidate_node))
+    builder.add_node("retrieve_more_schema", measure_node("retrieve_more_schema", retrieve_more_schema_node))
+    builder.add_node("execute_sql", measure_node("execute_sql", execute_sql_node))
+    builder.add_node("answer_node", measure_node("answer_node", answer_node))
+    builder.add_node("build_run", measure_node("build_run", build_run_node))
     
 
     #

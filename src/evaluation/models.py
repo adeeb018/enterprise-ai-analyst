@@ -23,6 +23,8 @@ class AgentRun(BaseModel):
 
     error: Optional[str] = None
 
+    success: bool = False
+
 
 class BenchmarkQuestion(BaseModel):
 

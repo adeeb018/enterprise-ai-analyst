@@ -95,6 +95,7 @@ def execute_sql_node(
 def build_run_node(
     state: AnalystState,
 ):
+    
     execution_result = state.get("execution_result")
     has_error = "error" in state or execution_result is None
 
@@ -108,6 +109,21 @@ def build_run_node(
         answer=state["answer"],
         error=state.get("error") if has_error else None,
     )
+
+    timings = state.get("timings", {})
+    
+    if timings:
+        print("\n=====================================================================")
+        print("📊 LANGGRAPH EXECUTION TIMING REPORT")
+        print("=====================================================================")
+        print(f"{'Node Name':<22} | {'Start Time':<23} | {'End Time':<23} | {'Duration'}")
+        print("-" * 77)
+        
+        # Sort nodes by start time or duration
+        for node_name, data in timings.items():
+            print(f"{node_name:<22} | {data['start_time']} | {data['end_time']} | {data['total_time_sec']:>6.3f}s")
+            
+        print("=====================================================================\n")
 
     return {
         "run": run,

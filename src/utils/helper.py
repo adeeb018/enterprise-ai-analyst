@@ -44,3 +44,47 @@ def get_graph() -> SchemaGraph:
         )
 
         return graph
+
+
+import time
+from datetime import datetime
+from functools import wraps
+
+def measure_node(node_name: str, node_func):
+    """Wraps a LangGraph node to capture start time, end time, and total duration."""
+    @wraps(node_func)
+    def wrapper(state, *args, **kwargs):
+        # Capture precise start times
+        start_perf = time.perf_counter()
+        start_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+        
+        # Execute node logic
+        result = node_func(state, *args, **kwargs)
+        
+        # Capture precise end times
+        end_perf = time.perf_counter()
+        end_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+        
+        duration = round(end_perf - start_perf, 3)
+        
+        # Prepare node metrics payload
+        node_timing = {
+            "start_time": start_timestamp,
+            "end_time": end_timestamp,
+            "total_time_sec": duration
+        }
+        
+        # Safely update timings in state
+        current_state = result if isinstance(result, dict) else state
+        timings = current_state.get("timings", state.get("timings", {})).copy()
+        timings[node_name] = node_timing
+        
+        if isinstance(result, dict):
+            result["timings"] = timings
+        else:
+            state["timings"] = timings
+            
+        print(f"⏱️ Node [{node_name}] | Start: {start_timestamp} | End: {end_timestamp} | Total: {duration}s")
+        return result
+        
+    return wrapper

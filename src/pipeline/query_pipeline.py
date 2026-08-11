@@ -14,6 +14,7 @@ from src.retrieval.retriever import Retriever
 from src.sql.generator.models import SchemaContext
 from src.sql.models import ValidationReport
 from src.utils.helper import get_graph
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 
 class QueryPipeline:
@@ -27,7 +28,6 @@ class QueryPipeline:
         self.ranker = ContextRanker(graph=self.graph)
         self._failure_analyzer = FailureAnalyzer()
 
-
     def retrieve_schema(
         self,
         question: str,
@@ -38,49 +38,86 @@ class QueryPipeline:
         plan = QueryPlan.model_validate(plan)
 
         all_results: list[RetrievedChunk] = []
-
         seen_tables = set()
 
-        for concept in plan.concepts:
+        def _search(concept: str):
+            return self.retriever.retrieve(concept, limit=top_k)
 
-            print(f"\nSearching for concept: {concept}")
+        with ThreadPoolExecutor(max_workers=min(len(plan.concepts), 8)) as executor:
+            futures = [executor.submit(_search, concept) for concept in plan.concepts]
 
-            results = self.retriever.retrieve(
-                concept,
-                limit=top_k,
-            )
+            for future in as_completed(futures):
+                results = future.result()
 
-            print(f"\nResults for concept: {concept}")
+                for result in results:
+                    table_id = f"{result.schema_name}.{result.table}"
+                    if table_id in seen_tables:
+                        continue
+                    seen_tables.add(table_id)
+                    all_results.append(result)
 
-            for r in results:
-                print(
-                    f"{r.score:.4f} "
-                    f"{r.schema_name}.{r.table}"
-                )
-
-            for result in results:
-
-                table_id = (
-                    f"{result.schema_name}.{result.table}"
-                )
-
-                if table_id in seen_tables:
-                    continue
-
-                seen_tables.add(table_id)
-
-                all_results.append(result)
-
-        all_results.sort(
-            key=lambda x: x.score,
-            reverse=True,
-        )
+        all_results.sort(key=lambda x: x.score, reverse=True)
 
         return self._process_retrieval(
             plan=plan,
             question=question,
             retrieved_tables=all_results,
         )
+
+
+    # def retrieve_schema(
+    #     self,
+    #     question: str,
+    #     top_k: int = 2,
+    # ) -> RetrievalResult:
+
+    #     plan = self.planner.plan(question)
+    #     plan = QueryPlan.model_validate(plan)
+
+    #     all_results: list[RetrievedChunk] = []
+
+    #     seen_tables = set()
+
+    #     for concept in plan.concepts:
+
+    #         print(f"\nSearching for concept: {concept}")
+
+    #         results = self.retriever.retrieve(
+    #             concept,
+    #             limit=top_k,
+    #         )
+
+    #         print(f"\nResults for concept: {concept}")
+
+    #         for r in results:
+    #             print(
+    #                 f"{r.score:.4f} "
+    #                 f"{r.schema_name}.{r.table}"
+    #             )
+
+    #         for result in results:
+
+    #             table_id = (
+    #                 f"{result.schema_name}.{result.table}"
+    #             )
+
+    #             if table_id in seen_tables:
+    #                 continue
+
+    #             seen_tables.add(table_id)
+
+    #             all_results.append(result)
+
+    #     all_results.sort(
+    #         key=lambda x: x.score,
+    #         reverse=True,
+    #     )
+
+    #     return self._process_retrieval(
+    #         plan=plan,
+    #         question=question,
+    #         retrieved_tables=all_results,
+    #     )
 
     def _process_retrieval(
         self,
