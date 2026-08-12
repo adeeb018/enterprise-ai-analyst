@@ -1,19 +1,23 @@
 import asyncio
 import json
 
-from mcp import ClientSession, StdioServerParameters, types
-from mcp.client.stdio import stdio_client
-
-
-SERVER_PARAMS = StdioServerParameters(
-    command="uv",
-    args=[
-        "run",
-        "mcp",
-        "run",
-        "server.py",
-    ],
+from mcp import ClientSession, types
+from mcp.client.streamable_http import (
+    streamable_http_client,
 )
+
+
+# SERVER_PARAMS = StdioServerParameters(
+#     command="uv",
+#     args=[
+#         "run",
+#         "mcp",
+#         "run",
+#         "server.py",
+#     ],
+# )
+
+MCP_SERVER_URL = "http://127.0.0.1:8001/mcp/"
 
 
 def get_text(result) -> str:
@@ -469,9 +473,9 @@ async def call_analyst(
 
 async def run_client() -> None:
 
-    async with stdio_client(
-        SERVER_PARAMS
-    ) as (read, write):
+    async with streamable_http_client(
+        MCP_SERVER_URL
+    ) as (read, write, _):
 
         async with ClientSession(
             read,
