@@ -1,4 +1,5 @@
 from src.evaluation.models import AgentRun
+from src.llm.ollama_client import OllamaClient
 from src.pipeline.pipeline_models import RetrievalResult
 from src.pipeline.query_pipeline import QueryPipeline
 from src.sql.answer.generator import AnswerGenerator
@@ -11,6 +12,10 @@ from src.sql.generator.builder import SchemaContextBuilder
 from src.sql.generator.models import SchemaContext
 from src.sql.models import SQLCandidate, ValidationReport
 from src.utils.helper import get_graph
+
+from src.conversation.rewriter import (
+    QuestionRewriter,
+)
 
 
 class AnalystAgent:
@@ -32,6 +37,10 @@ class AnalystAgent:
         self._graph = get_graph()
 
         self._answer_generator = AnswerGenerator()
+
+        self._question_rewriter = QuestionRewriter(
+            llm=OllamaClient(),
+        )
 
     def retrieve(
         self,
@@ -175,4 +184,16 @@ class AnalystAgent:
             question=question,
             candidate=candidate,
             execution_result=execution_result,
+        )
+
+    def rewrite_question(
+        self,
+        *,
+        question: str,
+        history: str,
+    ) -> str:
+
+        return self._question_rewriter.rewrite(
+            question=question,
+            history=history,
         )

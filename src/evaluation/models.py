@@ -11,6 +11,8 @@ class AgentRun(BaseModel):
 
     question: str
 
+    resolved_question: str | None = None
+
     retrieval_result: Optional[RetrievalResult] = None
 
     schema_context: Optional[SchemaContext] = None

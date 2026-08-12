@@ -1,13 +1,15 @@
-from src.llm.gemini_client import GeminiLLMClient
+
 from src.planner.prompts import PLANNER_PROMPT
 from src.planner.planner_models import QueryPlan
+
+from src.llm.ollama_client import OllamaClient
 
 
 class Planner:
 
     def __init__(self):
 
-        self.llm = GeminiLLMClient()  # type: ignore
+        self.llm = OllamaClient()  # type: ignore
 
     def plan(
         self,

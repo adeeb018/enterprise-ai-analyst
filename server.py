@@ -1,45 +1,158 @@
 from mcp.server.fastmcp import FastMCP
 from src.orchestration.langgraph.graph import build_graph
+from src.conversation.history import (
+    ConversationHistoryFormatter,
+)
+from src.conversation.manager import (
+    ConversationManager,
+)
+from src.sql.executor.connection import init_db
 
 mcp = FastMCP(
     "Enterprise AI Analyst",
 )
 
+init_db()
+
 
 graph = build_graph()
+
+conversation_manager = ConversationManager()
+
+history_formatter = ConversationHistoryFormatter()
+
+@mcp.tool()
+def create_conversation(
+    title: str = "New Chat",
+) -> str:
+    """
+    Create a new persistent analyst conversation.
+    """
+
+    conversation = conversation_manager.create(
+        title=title,
+    )
+
+    return conversation.conversation_id
 
 
 @mcp.tool()
 def ask_analyst(
     question: str,
+    conversation_id: str | None = None,
 ) -> str:
     """
-    Ask the Enterprise AI Analyst a natural-language
-    question about the enterprise database.
-
-    The analyst plans the question, retrieves schema,
-    generates and validates SQL, executes it, and
-    produces a natural-language answer.
+    Ask the Enterprise AI Analyst a question
+    within an existing conversation.
     """
 
-    result = graph.invoke({"question": question})
+    if not conversation_id:
+        new_conv = conversation_manager.create(
+            title=question[:30] + "..." if len(question) > 30 else question
+        )
+        conversation_id = new_conv.conversation_id
+        history = ""
+    else:
+        conversation = conversation_manager.get(conversation_id)
+        history = history_formatter.format(conversation)
 
-    if not result["run"].success:
+    result = graph.invoke(
+        {
+            "question": question,
+            "conversation_id": conversation_id,
+            "conversation_history": history,
+        }
+    )
+
+    run = result["run"]
+
+    if not run.success:
         raise RuntimeError(
-            result["run"].error or "Analyst failed to answer the question."
+            run.error
+            or "Analyst failed to answer the question."
         )
 
-    answer_obj = result["run"].answer
+    answer_obj = run.answer
 
     if answer_obj is None:
         raise RuntimeError(
-            "Analyst completed without generating an answer."
+            "Analyst completed without generating "
+            "an answer."
         )
 
-    answer_text = answer_obj.answer if hasattr(answer_obj, "answer") else str(answer_obj)
+    answer_text = (
+        answer_obj.answer
+        if hasattr(answer_obj, "answer")
+        else str(answer_obj)
+    )
+
+    generated_sql_str = None
+    if run.generated_sql:
+        if hasattr(run.generated_sql, "sql"):
+            generated_sql_str = run.generated_sql.sql
+        elif isinstance(run.generated_sql, dict):
+            generated_sql_str = run.generated_sql.get("sql")
+
+    conversation_manager.add_turn(
+        conversation_id=conversation_id,
+        question=question,
+        answer=answer_text,
+        generated_sql=generated_sql_str,
+    )
 
     return answer_text
 
+
+
+
+
+@mcp.tool()
+def list_conversations() -> list[dict]:
+    """
+    List previously saved analyst conversations.
+    """
+
+    conversations = (
+        conversation_manager.list()
+    )
+
+    return [
+        conversation.model_dump(
+            mode="json"
+        )
+        for conversation in conversations
+    ]
+
+@mcp.tool()
+def delete_conversation(
+    conversation_id: str,
+) -> str:
+    """
+    Permanently delete a conversation and
+    all of its messages.
+    """
+
+    conversation_manager.delete(
+        conversation_id
+    )
+
+    return "Conversation deleted successfully."
+
+@mcp.tool()
+def get_conversation(
+    conversation_id: str,
+) -> dict:
+    """
+    Return the complete conversation history.
+    """
+
+    conversation = conversation_manager.get(
+        conversation_id
+    )
+
+    return conversation.model_dump(
+        mode="json"
+    )
 
 if __name__ == "__main__":
     mcp.run()

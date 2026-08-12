@@ -13,9 +13,10 @@ def retrieve_node(
 ):
 
     # agent: AnalystAgent = config["configurable"]["agent"]
+    question_to_use = state.get("resolved_question") or state["question"]
 
     retrieval_result = agent.retrieve(
-        state["question"]
+        question_to_use
     )
 
     return {
@@ -27,8 +28,9 @@ def retrieve_more_schema_node(
     config,
 ):
 
+    question_to_use = state.get("resolved_question") or state["question"]
     retrieval_result = agent.retrieve_more_schema(
-        question=state["question"],
+        question_to_use,
         retrieval_result=state["retrieval_result"],
         validation_report=state["validation_report"],
     )
@@ -60,9 +62,9 @@ def generate_sql_node(
 ):
 
     # agent: AnalystAgent = config["configurable"]["agent"]
-
+    question_to_use = state.get("resolved_question") or state["question"]
     candidate = agent.generate_sql(
-        question=state["question"],
+        question=question_to_use,
         retrieval_result=state["retrieval_result"],
         schema_context=state["schema_context"],
     )
@@ -80,9 +82,10 @@ def execute_sql_node(
     # agent: AnalystAgent = config["configurable"]["agent"]
 
     # breakpoint()
+    question_to_use = state.get("resolved_question") or state["question"]
 
     execution_result = agent.execute_sql(
-        question=state["question"],
+        question=question_to_use,
         candidate=state["candidate"],
         schema_context=state["schema_context"],
     )
@@ -101,6 +104,9 @@ def build_run_node(
 
     run = AgentRun(
         question=state["question"],
+        resolved_question=state.get(
+            "resolved_question"
+        ),
         retrieval_result=state["retrieval_result"],
         schema_context=state["schema_context"],
         generated_sql=state["candidate"],
@@ -132,9 +138,9 @@ def build_run_node(
 def generate_candidate_node(state, config):
 
     # agent = config["configurable"]["agent"]
-
+    question_to_use = state.get("resolved_question") or state["question"]
     candidate = agent.generate_candidate(
-        question=state["question"],
+        question=question_to_use,
         retrieval_result=state["retrieval_result"],
         schema_context=state["schema_context"],
     )
@@ -168,9 +174,9 @@ def repair_candidate_node(state, config):
     current_repairs = state.get("repair_count", 0)
 
     new_repair_count = current_repairs + 1
-
+    question_to_use = state.get("resolved_question") or state["question"]
     candidate = agent.repair_candidate(
-        question=state["question"],
+        question=question_to_use,
         candidate=state["candidate"],
         report=state["validation_report"],
         schema_context=state["schema_context"],
@@ -186,12 +192,52 @@ def answer_node(
     config,
 ):
 
+    question_to_use = state.get("resolved_question") or state["question"]
     answer = agent.generate_answer(
-        question=state["question"],
+        question=question_to_use,
         candidate=state["candidate"],
         execution_result=state["execution_result"],
     )
 
     return {
         "answer": answer,
+    }
+
+def rewrite_question_node(
+    state: AnalystState,
+    config,
+):
+
+    question = state["question"]
+
+    history = state.get(
+        "conversation_history",
+        "",
+    )
+
+    if not history:
+        return {
+            "resolved_question": question,
+        }
+
+
+    resolved_question = (
+        agent.rewrite_question(
+            question=question,
+            history=history,
+        )
+    )
+
+    print(
+        "\nOriginal question:",
+        question,
+    )
+
+    print(
+        "Resolved question:",
+        resolved_question,
+    )
+
+    return {
+        "resolved_question": resolved_question,
     }

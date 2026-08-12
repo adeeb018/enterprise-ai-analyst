@@ -15,6 +15,7 @@ from .nodes import (
     execute_sql_node,
     build_run_node,
     validate_candidate_node,
+    rewrite_question_node
 )
 
 
@@ -25,6 +26,7 @@ def build_graph():
     #
     # Register Nodes
     #
+    builder.add_node("rewrite_question", measure_node("rewrite_question", rewrite_question_node))
     builder.add_node("retrieve", measure_node("retrieve", retrieve_node))
     builder.add_node("schema_context", measure_node("schema_context", schema_context_node))
     builder.add_node("generate_candidate", measure_node("generate_candidate", generate_candidate_node))
@@ -39,8 +41,14 @@ def build_graph():
     #
     # Build Graph
     #
+
     builder.add_edge(
         START,
+        "rewrite_question",
+    )
+
+    builder.add_edge(
+        "rewrite_question",
         "retrieve",
     )
 

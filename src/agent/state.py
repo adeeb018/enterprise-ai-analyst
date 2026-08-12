@@ -11,6 +11,9 @@ from typing import NotRequired, TypedDict
 
 class AnalystState(TypedDict):
     question: str
+    conversation_id: str | None
+    conversation_history: str | None
+    resolved_question: str | None
     retrieval_result: NotRequired[RetrievalResult]
     schema_context: NotRequired[SchemaContext]
     candidate: NotRequired[SQLCandidate]

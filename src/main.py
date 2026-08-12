@@ -53,9 +53,17 @@ from src.orchestration.langgraph.graph import build_graph
 
 graph = build_graph()
 
+question = "Find the maximum lab value for creatinine for ICU admissions"
+conversation_id = "test_conversation"
+conversation_history = ""
+
 result = graph.invoke(
     {
-        "question": "Find the maximum lab value for creatinine for ICU admissions"
+        "question": question,
+        "conversation_id": conversation_id,
+        "conversation_history": (
+            conversation_history or ""
+        ),
     },
     # config={
     #     "configurable": {
