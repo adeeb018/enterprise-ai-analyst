@@ -66,20 +66,20 @@ class EmbeddingService:
                 api_key=settings.hf_token,
             )
 
-        elif self.provider == "local":
+        # elif self.provider == "local":
 
-            from sentence_transformers import (
-                SentenceTransformer,
-            )
+        #     # from sentence_transformers import (
+        #     #     SentenceTransformer,
+        #     # )
 
-            print(
-                "Loading local embedding model: "
-                f"{self.model_name}"
-            )
+        #     print(
+        #         "Loading local embedding model: "
+        #         f"{self.model_name}"
+        #     )
 
-            self.model = SentenceTransformer(
-                self.model_name
-            )
+        #     self.model = SentenceTransformer(
+        #         self.model_name
+        #     )
 
         else:
 

@@ -22,7 +22,8 @@ load_dotenv()
 #     ],
 # )
 
-MCP_SERVER_URL = "http://127.0.0.1:8001/mcp/"
+# MCP_SERVER_URL = "http://127.0.0.1:8001/mcp/"
+MCP_SERVER_URL = "https://enterprise-ai-analyst-ho9d.onrender.com/mcp"
 
 MCP_API_KEY = os.environ.get("MCP_API_KEY", "")
 

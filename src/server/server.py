@@ -1,4 +1,6 @@
 from mcp.server.fastmcp import FastMCP
+import os
+from mcp.server.transport_security import TransportSecuritySettings
 from src.orchestration.langgraph.graph import build_graph
 from src.conversation.history import (
     ConversationHistoryFormatter,
@@ -13,8 +15,16 @@ from src.server.health import health_check
 
 def create_mcp_server() -> FastMCP:
 
+    allowed_host = os.environ.get(
+        "MCP_ALLOWED_HOST",
+        "localhost",
+    )
+
     mcp = FastMCP(
         "Enterprise AI Analyst",
+        transport_security=TransportSecuritySettings(
+            allowed_hosts=[allowed_host],
+        ),
     )
 
     init_db()
