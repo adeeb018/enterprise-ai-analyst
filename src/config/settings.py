@@ -35,5 +35,8 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
+    embedding_provider: str = "local"
+    hf_token: str | None = None
+
 
 settings = Settings()
