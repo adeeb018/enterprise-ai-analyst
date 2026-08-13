@@ -89,6 +89,7 @@ data/evaluation/*
 
 !data/schema/
 !data/schema/.gitkeep
+!data/schema/enriched_schema.json
 
 !data/evaluation/
 !data/evaluation/.gitkeep
