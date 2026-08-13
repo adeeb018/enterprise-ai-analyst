@@ -4,7 +4,7 @@ from pathlib import Path
 from pydantic import ValidationError
 
 from src.embedding.embedding_service import EmbeddingService
-from src.llm.ollama_client import OllamaClient
+from src.llm.llm_client import CloudLLMClient
 from src.llm.prompts import SCHEMA_DESCRIPTION_PROMPT
 from src.ingestion.schema_models import (
     EnrichmentInfo,
@@ -25,7 +25,7 @@ class SchemaEnricher:
         self.input_path = SCHEMA_JSON
         self.output_path = ENRICHED_SCHEMA_JSON
 
-        self.llm = OllamaClient()
+        self.llm = CloudLLMClient()
         self.embedding_service = EmbeddingService()
 
     def enrich(self):

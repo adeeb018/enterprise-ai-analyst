@@ -1,5 +1,5 @@
 from src.evaluation.models import AgentRun
-from src.llm.ollama_client import OllamaClient
+from src.llm.llm_client import CloudLLMClient
 from src.pipeline.pipeline_models import RetrievalResult
 from src.pipeline.query_pipeline import QueryPipeline
 from src.sql.answer.generator import AnswerGenerator
@@ -39,7 +39,7 @@ class AnalystAgent:
         self._answer_generator = AnswerGenerator()
 
         self._question_rewriter = QuestionRewriter(
-            llm=OllamaClient(),
+            llm=CloudLLMClient(),
         )
 
     def retrieve(

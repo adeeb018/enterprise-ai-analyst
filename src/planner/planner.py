@@ -2,14 +2,14 @@
 from src.planner.prompts import PLANNER_PROMPT
 from src.planner.planner_models import QueryPlan
 
-from src.llm.ollama_client import OllamaClient
+from src.llm.llm_client import CloudLLMClient
 
 
 class Planner:
 
     def __init__(self):
 
-        self.llm = OllamaClient()  # type: ignore
+        self.llm = CloudLLMClient()  # type: ignore
 
     def plan(
         self,
