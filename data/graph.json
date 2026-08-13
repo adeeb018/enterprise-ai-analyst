@@ -1,0 +1,1041 @@
+{
+  "nodes": [
+    {
+      "id": "mimiciv_hosp.diagnoses_icd",
+      "role": "fact"
+    },
+    {
+      "id": "mimiciv_hosp.labevents",
+      "role": "fact"
+    },
+    {
+      "id": "mimiciv_hosp.d_icd_diagnoses",
+      "role": "lookup"
+    },
+    {
+      "id": "mimiciv_hosp.d_icd_procedures",
+      "role": "lookup"
+    },
+    {
+      "id": "mimiciv_hosp.emar",
+      "role": "fact"
+    },
+    {
+      "id": "mimiciv_hosp.hcpcsevents",
+      "role": "fact"
+    },
+    {
+      "id": "mimiciv_hosp.d_labitems",
+      "role": "lookup"
+    },
+    {
+      "id": "mimiciv_hosp.pharmacy",
+      "role": "fact"
+    },
+    {
+      "id": "mimiciv_hosp.omr",
+      "role": "fact"
+    },
+    {
+      "id": "mimiciv_hosp.poe_detail",
+      "role": "fact"
+    },
+    {
+      "id": "mimiciv_hosp.poe",
+      "role": "fact"
+    },
+    {
+      "id": "mimiciv_hosp.procedures_icd",
+      "role": "fact"
+    },
+    {
+      "id": "mimiciv_hosp.provider",
+      "role": "fact"
+    },
+    {
+      "id": "mimiciv_hosp.drgcodes",
+      "role": "fact"
+    },
+    {
+      "id": "mimiciv_hosp.emar_detail",
+      "role": "fact"
+    },
+    {
+      "id": "mimiciv_hosp.d_hcpcs",
+      "role": "lookup"
+    },
+    {
+      "id": "mimiciv_hosp.microbiologyevents",
+      "role": "fact"
+    },
+    {
+      "id": "mimiciv_hosp.prescriptions",
+      "role": "fact"
+    },
+    {
+      "id": "mimiciv_hosp.services",
+      "role": "fact"
+    },
+    {
+      "id": "mimiciv_hosp.transfers",
+      "role": "fact"
+    },
+    {
+      "id": "mimiciv_hosp.patients",
+      "role": "dimension"
+    },
+    {
+      "id": "mimiciv_hosp.admissions",
+      "role": "dimension"
+    },
+    {
+      "id": "mimiciv_icu.caregiver",
+      "role": "fact"
+    },
+    {
+      "id": "mimiciv_icu.inputevents",
+      "role": "fact"
+    },
+    {
+      "id": "mimiciv_icu.ingredientevents",
+      "role": "fact"
+    },
+    {
+      "id": "mimiciv_icu.chartevents",
+      "role": "fact"
+    },
+    {
+      "id": "mimiciv_icu.icustays",
+      "role": "dimension"
+    },
+    {
+      "id": "mimiciv_icu.d_items",
+      "role": "lookup"
+    },
+    {
+      "id": "mimiciv_icu.datetimeevents",
+      "role": "fact"
+    },
+    {
+      "id": "mimiciv_icu.outputevents",
+      "role": "fact"
+    },
+    {
+      "id": "mimiciv_icu.procedureevents",
+      "role": "fact"
+    }
+  ],
+  "edges": [
+    {
+      "source": "mimiciv_hosp.diagnoses_icd",
+      "target": "mimiciv_hosp.admissions",
+      "source_column": "hadm_id",
+      "target_column": "hadm_id",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_hosp.diagnoses_icd",
+      "target": "mimiciv_hosp.patients",
+      "source_column": "subject_id",
+      "target_column": "subject_id",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_hosp.diagnoses_icd",
+      "target": "mimiciv_hosp.d_icd_diagnoses",
+      "source_column": [
+        "icd_code",
+        "icd_version",
+        "long_title"
+      ],
+      "target_column": [
+        "icd_code",
+        "icd_version",
+        "long_title"
+      ],
+      "relationship": "logical_lookup",
+      "confidence": 67.111,
+      "evidence": [
+        "primary_key_match",
+        "lookup_table",
+        "shared_identifier",
+        "semantic_similarity"
+      ]
+    },
+    {
+      "source": "mimiciv_hosp.diagnoses_icd",
+      "target": "mimiciv_hosp.d_icd_procedures",
+      "source_column": [
+        "icd_code",
+        "icd_version",
+        "long_title"
+      ],
+      "target_column": [
+        "icd_code",
+        "icd_version",
+        "long_title"
+      ],
+      "relationship": "logical_lookup",
+      "confidence": 64.971,
+      "evidence": [
+        "primary_key_match",
+        "lookup_table",
+        "shared_identifier",
+        "semantic_similarity"
+      ]
+    },
+    {
+      "source": "mimiciv_hosp.diagnoses_icd",
+      "target": "mimiciv_hosp.procedures_icd",
+      "source_column": [
+        "icd_code",
+        "icd_version"
+      ],
+      "target_column": [
+        "icd_code",
+        "icd_version"
+      ],
+      "relationship": "logical_lookup",
+      "confidence": 37.025,
+      "evidence": [
+        "primary_key_match",
+        "lookup_table",
+        "shared_identifier",
+        "semantic_similarity"
+      ]
+    },
+    {
+      "source": "mimiciv_hosp.labevents",
+      "target": "mimiciv_hosp.d_labitems",
+      "source_column": "itemid",
+      "target_column": "itemid",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_hosp.labevents",
+      "target": "mimiciv_hosp.patients",
+      "source_column": "subject_id",
+      "target_column": "subject_id",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_hosp.labevents",
+      "target": "mimiciv_hosp.microbiologyevents",
+      "source_column": "order_provider_id",
+      "target_column": "order_provider_id",
+      "relationship": "logical_lookup",
+      "confidence": 32.724,
+      "evidence": [
+        "lookup_table",
+        "shared_identifier",
+        "semantic_similarity"
+      ]
+    },
+    {
+      "source": "mimiciv_hosp.d_icd_diagnoses",
+      "target": "mimiciv_hosp.diagnoses_icd",
+      "source_column": [
+        "icd_code",
+        "icd_version"
+      ],
+      "target_column": [
+        "icd_code",
+        "icd_version"
+      ],
+      "relationship": "logical_lookup",
+      "confidence": 45.421,
+      "evidence": [
+        "primary_key_match",
+        "lookup_table",
+        "shared_identifier",
+        "semantic_similarity"
+      ]
+    },
+    {
+      "source": "mimiciv_hosp.d_icd_diagnoses",
+      "target": "mimiciv_hosp.procedures_icd",
+      "source_column": [
+        "icd_code",
+        "icd_version"
+      ],
+      "target_column": [
+        "icd_code",
+        "icd_version"
+      ],
+      "relationship": "logical_lookup",
+      "confidence": 36.879,
+      "evidence": [
+        "primary_key_match",
+        "lookup_table",
+        "shared_identifier",
+        "semantic_similarity"
+      ]
+    },
+    {
+      "source": "mimiciv_hosp.d_icd_procedures",
+      "target": "mimiciv_hosp.diagnoses_icd",
+      "source_column": [
+        "icd_code",
+        "icd_version"
+      ],
+      "target_column": [
+        "icd_code",
+        "icd_version"
+      ],
+      "relationship": "logical_lookup",
+      "confidence": 43.281,
+      "evidence": [
+        "primary_key_match",
+        "lookup_table",
+        "shared_identifier",
+        "semantic_similarity"
+      ]
+    },
+    {
+      "source": "mimiciv_hosp.d_icd_procedures",
+      "target": "mimiciv_hosp.procedures_icd",
+      "source_column": [
+        "icd_code",
+        "icd_version"
+      ],
+      "target_column": [
+        "icd_code",
+        "icd_version"
+      ],
+      "relationship": "logical_lookup",
+      "confidence": 38.222,
+      "evidence": [
+        "primary_key_match",
+        "lookup_table",
+        "shared_identifier",
+        "semantic_similarity"
+      ]
+    },
+    {
+      "source": "mimiciv_hosp.emar",
+      "target": "mimiciv_hosp.admissions",
+      "source_column": "hadm_id",
+      "target_column": "hadm_id",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_hosp.emar",
+      "target": "mimiciv_hosp.patients",
+      "source_column": "subject_id",
+      "target_column": "subject_id",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_hosp.emar",
+      "target": "mimiciv_hosp.pharmacy",
+      "source_column": [
+        "pharmacy_id",
+        "poe_id"
+      ],
+      "target_column": [
+        "pharmacy_id",
+        "poe_id"
+      ],
+      "relationship": "logical_lookup",
+      "confidence": 32.679,
+      "evidence": [
+        "lookup_table",
+        "shared_identifier",
+        "semantic_similarity"
+      ]
+    },
+    {
+      "source": "mimiciv_hosp.emar",
+      "target": "mimiciv_hosp.poe_detail",
+      "source_column": "poe_id",
+      "target_column": "poe_id",
+      "relationship": "logical_lookup",
+      "confidence": 31.032,
+      "evidence": [
+        "lookup_table",
+        "shared_identifier",
+        "semantic_similarity"
+      ]
+    },
+    {
+      "source": "mimiciv_hosp.emar",
+      "target": "mimiciv_hosp.prescriptions",
+      "source_column": [
+        "pharmacy_id",
+        "poe_id"
+      ],
+      "target_column": [
+        "pharmacy_id",
+        "poe_id"
+      ],
+      "relationship": "logical_lookup",
+      "confidence": 32.234,
+      "evidence": [
+        "lookup_table",
+        "shared_identifier",
+        "semantic_similarity"
+      ]
+    },
+    {
+      "source": "mimiciv_hosp.hcpcsevents",
+      "target": "mimiciv_hosp.admissions",
+      "source_column": "hadm_id",
+      "target_column": "hadm_id",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_hosp.hcpcsevents",
+      "target": "mimiciv_hosp.d_hcpcs",
+      "source_column": "hcpcs_cd",
+      "target_column": "code",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_hosp.hcpcsevents",
+      "target": "mimiciv_hosp.patients",
+      "source_column": "subject_id",
+      "target_column": "subject_id",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_hosp.pharmacy",
+      "target": "mimiciv_hosp.admissions",
+      "source_column": "hadm_id",
+      "target_column": "hadm_id",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_hosp.pharmacy",
+      "target": "mimiciv_hosp.patients",
+      "source_column": "subject_id",
+      "target_column": "subject_id",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_hosp.pharmacy",
+      "target": "mimiciv_hosp.emar",
+      "source_column": [
+        "pharmacy_id",
+        "poe_id"
+      ],
+      "target_column": [
+        "pharmacy_id",
+        "poe_id"
+      ],
+      "relationship": "logical_lookup",
+      "confidence": 32.679,
+      "evidence": [
+        "lookup_table",
+        "shared_identifier",
+        "semantic_similarity"
+      ]
+    },
+    {
+      "source": "mimiciv_hosp.pharmacy",
+      "target": "mimiciv_hosp.emar_detail",
+      "source_column": "pharmacy_id",
+      "target_column": "pharmacy_id",
+      "relationship": "logical_lookup",
+      "confidence": 30.387,
+      "evidence": [
+        "shared_identifier",
+        "semantic_similarity"
+      ]
+    },
+    {
+      "source": "mimiciv_hosp.pharmacy",
+      "target": "mimiciv_hosp.prescriptions",
+      "source_column": [
+        "pharmacy_id",
+        "poe_id"
+      ],
+      "target_column": [
+        "pharmacy_id",
+        "poe_id"
+      ],
+      "relationship": "logical_lookup",
+      "confidence": 35.628,
+      "evidence": [
+        "primary_key_match",
+        "lookup_table",
+        "shared_identifier",
+        "semantic_similarity"
+      ]
+    },
+    {
+      "source": "mimiciv_hosp.pharmacy",
+      "target": "mimiciv_hosp.poe_detail",
+      "source_column": "poe_id",
+      "target_column": "poe_id",
+      "relationship": "logical_lookup",
+      "confidence": 30.449,
+      "evidence": [
+        "lookup_table",
+        "shared_identifier",
+        "semantic_similarity"
+      ]
+    },
+    {
+      "source": "mimiciv_hosp.poe_detail",
+      "target": "mimiciv_hosp.patients",
+      "source_column": "subject_id",
+      "target_column": "subject_id",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_hosp.poe_detail",
+      "target": "mimiciv_hosp.poe",
+      "source_column": "poe_id",
+      "target_column": "poe_id",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_hosp.poe",
+      "target": "mimiciv_hosp.admissions",
+      "source_column": "hadm_id",
+      "target_column": "hadm_id",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_hosp.poe",
+      "target": "mimiciv_hosp.patients",
+      "source_column": "subject_id",
+      "target_column": "subject_id",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_hosp.poe",
+      "target": "mimiciv_hosp.prescriptions",
+      "source_column": [
+        "order_provider_id",
+        "poe_id"
+      ],
+      "target_column": [
+        "order_provider_id",
+        "poe_id"
+      ],
+      "relationship": "logical_lookup",
+      "confidence": 31.266,
+      "evidence": [
+        "lookup_table",
+        "shared_identifier",
+        "semantic_similarity"
+      ]
+    },
+    {
+      "source": "mimiciv_hosp.procedures_icd",
+      "target": "mimiciv_hosp.admissions",
+      "source_column": "hadm_id",
+      "target_column": "hadm_id",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_hosp.procedures_icd",
+      "target": "mimiciv_hosp.patients",
+      "source_column": "subject_id",
+      "target_column": "subject_id",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_hosp.procedures_icd",
+      "target": "mimiciv_hosp.diagnoses_icd",
+      "source_column": [
+        "icd_code",
+        "icd_version"
+      ],
+      "target_column": [
+        "icd_code",
+        "icd_version"
+      ],
+      "relationship": "logical_lookup",
+      "confidence": 44.255,
+      "evidence": [
+        "primary_key_match",
+        "lookup_table",
+        "shared_identifier",
+        "semantic_similarity"
+      ]
+    },
+    {
+      "source": "mimiciv_hosp.procedures_icd",
+      "target": "mimiciv_hosp.d_icd_diagnoses",
+      "source_column": [
+        "icd_code",
+        "icd_version",
+        "long_title"
+      ],
+      "target_column": [
+        "icd_code",
+        "icd_version",
+        "long_title"
+      ],
+      "relationship": "logical_lookup",
+      "confidence": 65.8,
+      "evidence": [
+        "primary_key_match",
+        "lookup_table",
+        "shared_identifier",
+        "semantic_similarity"
+      ]
+    },
+    {
+      "source": "mimiciv_hosp.procedures_icd",
+      "target": "mimiciv_hosp.d_icd_procedures",
+      "source_column": [
+        "icd_code",
+        "icd_version",
+        "long_title"
+      ],
+      "target_column": [
+        "icd_code",
+        "icd_version",
+        "long_title"
+      ],
+      "relationship": "logical_lookup",
+      "confidence": 67.142,
+      "evidence": [
+        "primary_key_match",
+        "lookup_table",
+        "shared_identifier",
+        "semantic_similarity"
+      ]
+    },
+    {
+      "source": "mimiciv_hosp.drgcodes",
+      "target": "mimiciv_hosp.admissions",
+      "source_column": "hadm_id",
+      "target_column": "hadm_id",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_hosp.drgcodes",
+      "target": "mimiciv_hosp.patients",
+      "source_column": "subject_id",
+      "target_column": "subject_id",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_hosp.emar_detail",
+      "target": "mimiciv_hosp.emar",
+      "source_column": "emar_id",
+      "target_column": "emar_id",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_hosp.emar_detail",
+      "target": "mimiciv_hosp.patients",
+      "source_column": "subject_id",
+      "target_column": "subject_id",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_hosp.emar_detail",
+      "target": "mimiciv_hosp.pharmacy",
+      "source_column": "pharmacy_id",
+      "target_column": "pharmacy_id",
+      "relationship": "logical_lookup",
+      "confidence": 30.511,
+      "evidence": [
+        "lookup_table",
+        "shared_identifier",
+        "semantic_similarity"
+      ]
+    },
+    {
+      "source": "mimiciv_hosp.microbiologyevents",
+      "target": "mimiciv_hosp.admissions",
+      "source_column": "hadm_id",
+      "target_column": "hadm_id",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_hosp.microbiologyevents",
+      "target": "mimiciv_hosp.patients",
+      "source_column": "subject_id",
+      "target_column": "subject_id",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_hosp.microbiologyevents",
+      "target": "mimiciv_hosp.labevents",
+      "source_column": "order_provider_id",
+      "target_column": "order_provider_id",
+      "relationship": "logical_lookup",
+      "confidence": 32.724,
+      "evidence": [
+        "lookup_table",
+        "shared_identifier",
+        "semantic_similarity"
+      ]
+    },
+    {
+      "source": "mimiciv_hosp.prescriptions",
+      "target": "mimiciv_hosp.admissions",
+      "source_column": "hadm_id",
+      "target_column": "hadm_id",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_hosp.prescriptions",
+      "target": "mimiciv_hosp.patients",
+      "source_column": "subject_id",
+      "target_column": "subject_id",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_hosp.prescriptions",
+      "target": "mimiciv_hosp.emar",
+      "source_column": [
+        "pharmacy_id",
+        "poe_id"
+      ],
+      "target_column": [
+        "pharmacy_id",
+        "poe_id"
+      ],
+      "relationship": "logical_lookup",
+      "confidence": 32.234,
+      "evidence": [
+        "lookup_table",
+        "shared_identifier",
+        "semantic_similarity"
+      ]
+    },
+    {
+      "source": "mimiciv_hosp.prescriptions",
+      "target": "mimiciv_hosp.pharmacy",
+      "source_column": [
+        "pharmacy_id",
+        "poe_id"
+      ],
+      "target_column": [
+        "pharmacy_id",
+        "poe_id"
+      ],
+      "relationship": "logical_lookup",
+      "confidence": 35.628,
+      "evidence": [
+        "primary_key_match",
+        "lookup_table",
+        "shared_identifier",
+        "semantic_similarity"
+      ]
+    },
+    {
+      "source": "mimiciv_hosp.prescriptions",
+      "target": "mimiciv_hosp.poe_detail",
+      "source_column": "poe_id",
+      "target_column": "poe_id",
+      "relationship": "logical_lookup",
+      "confidence": 31.597,
+      "evidence": [
+        "lookup_table",
+        "shared_identifier",
+        "semantic_similarity"
+      ]
+    },
+    {
+      "source": "mimiciv_hosp.prescriptions",
+      "target": "mimiciv_hosp.poe",
+      "source_column": [
+        "order_provider_id",
+        "poe_id"
+      ],
+      "target_column": [
+        "order_provider_id",
+        "poe_id"
+      ],
+      "relationship": "logical_lookup",
+      "confidence": 31.266,
+      "evidence": [
+        "lookup_table",
+        "shared_identifier",
+        "semantic_similarity"
+      ]
+    },
+    {
+      "source": "mimiciv_hosp.services",
+      "target": "mimiciv_hosp.admissions",
+      "source_column": "hadm_id",
+      "target_column": "hadm_id",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_hosp.services",
+      "target": "mimiciv_hosp.patients",
+      "source_column": "subject_id",
+      "target_column": "subject_id",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_hosp.transfers",
+      "target": "mimiciv_hosp.patients",
+      "source_column": "subject_id",
+      "target_column": "subject_id",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_hosp.admissions",
+      "target": "mimiciv_hosp.patients",
+      "source_column": "subject_id",
+      "target_column": "subject_id",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_icu.inputevents",
+      "target": "mimiciv_hosp.admissions",
+      "source_column": "hadm_id",
+      "target_column": "hadm_id",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_icu.inputevents",
+      "target": "mimiciv_icu.d_items",
+      "source_column": "itemid",
+      "target_column": "itemid",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_icu.inputevents",
+      "target": "mimiciv_icu.icustays",
+      "source_column": "stay_id",
+      "target_column": "stay_id",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_icu.inputevents",
+      "target": "mimiciv_hosp.patients",
+      "source_column": "subject_id",
+      "target_column": "subject_id",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_icu.chartevents",
+      "target": "mimiciv_hosp.admissions",
+      "source_column": "hadm_id",
+      "target_column": "hadm_id",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_icu.chartevents",
+      "target": "mimiciv_icu.d_items",
+      "source_column": "itemid",
+      "target_column": "itemid",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_icu.chartevents",
+      "target": "mimiciv_icu.icustays",
+      "source_column": "stay_id",
+      "target_column": "stay_id",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_icu.chartevents",
+      "target": "mimiciv_hosp.patients",
+      "source_column": "subject_id",
+      "target_column": "subject_id",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_icu.icustays",
+      "target": "mimiciv_hosp.admissions",
+      "source_column": "hadm_id",
+      "target_column": "hadm_id",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_icu.icustays",
+      "target": "mimiciv_hosp.patients",
+      "source_column": "subject_id",
+      "target_column": "subject_id",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_icu.datetimeevents",
+      "target": "mimiciv_hosp.admissions",
+      "source_column": "hadm_id",
+      "target_column": "hadm_id",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_icu.datetimeevents",
+      "target": "mimiciv_icu.d_items",
+      "source_column": "itemid",
+      "target_column": "itemid",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_icu.datetimeevents",
+      "target": "mimiciv_icu.icustays",
+      "source_column": "stay_id",
+      "target_column": "stay_id",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_icu.datetimeevents",
+      "target": "mimiciv_hosp.patients",
+      "source_column": "subject_id",
+      "target_column": "subject_id",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_icu.outputevents",
+      "target": "mimiciv_hosp.admissions",
+      "source_column": "hadm_id",
+      "target_column": "hadm_id",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_icu.outputevents",
+      "target": "mimiciv_icu.d_items",
+      "source_column": "itemid",
+      "target_column": "itemid",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_icu.outputevents",
+      "target": "mimiciv_icu.icustays",
+      "source_column": "stay_id",
+      "target_column": "stay_id",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_icu.outputevents",
+      "target": "mimiciv_hosp.patients",
+      "source_column": "subject_id",
+      "target_column": "subject_id",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_icu.procedureevents",
+      "target": "mimiciv_hosp.admissions",
+      "source_column": "hadm_id",
+      "target_column": "hadm_id",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_icu.procedureevents",
+      "target": "mimiciv_icu.d_items",
+      "source_column": "itemid",
+      "target_column": "itemid",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_icu.procedureevents",
+      "target": "mimiciv_icu.icustays",
+      "source_column": "stay_id",
+      "target_column": "stay_id",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    },
+    {
+      "source": "mimiciv_icu.procedureevents",
+      "target": "mimiciv_hosp.patients",
+      "source_column": "subject_id",
+      "target_column": "subject_id",
+      "relationship": "foreign_key",
+      "confidence": 1.0,
+      "evidence": []
+    }
+  ]
+}

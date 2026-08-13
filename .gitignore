@@ -94,6 +94,8 @@ data/evaluation/*
 !data/evaluation/
 !data/evaluation/.gitkeep
 
+!data/graph.json
+
 # Generated outputs
 outputs/
 artifacts/
