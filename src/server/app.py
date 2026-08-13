@@ -3,8 +3,6 @@ from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from .server import create_mcp_server
 
-from .auth import MCPAuthMiddleware
-
 
 mcp_server = create_mcp_server()
 mcp_app = mcp_server.streamable_http_app()
@@ -19,10 +17,6 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="Enterprise AI Analyst",
     lifespan=lifespan
-)
-
-app.add_middleware(
-    MCPAuthMiddleware,
 )
 
 
