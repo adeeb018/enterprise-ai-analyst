@@ -114,3 +114,4 @@ Thumbs.db
 mimic-code/
 
 docker/qdrant_data/
+migration/

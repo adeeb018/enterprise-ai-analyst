@@ -18,8 +18,8 @@ class Settings(BaseSettings):
     # ollama_base_url: str
     # ollama_model: str
 
-    qdrant_host: str
-    qdrant_port: int
+    qdrant_url: str
+    qdrant_api_key: str
     qdrant_collection: str
 
     qdrant_value_collection: str
