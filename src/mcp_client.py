@@ -5,6 +5,11 @@ from mcp import ClientSession, types
 from mcp.client.streamable_http import (
     streamable_http_client,
 )
+import httpx 
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 
 # SERVER_PARAMS = StdioServerParameters(
@@ -18,6 +23,12 @@ from mcp.client.streamable_http import (
 # )
 
 MCP_SERVER_URL = "http://127.0.0.1:8001/mcp/"
+
+MCP_API_KEY = os.environ.get("MCP_API_KEY", "")
+
+HEADERS = {}
+if MCP_API_KEY:
+    HEADERS["Authorization"] = f"Bearer {MCP_API_KEY}"
 
 
 def get_text(result) -> str:
@@ -472,181 +483,186 @@ async def call_analyst(
 
 
 async def run_client() -> None:
+    async with httpx.AsyncClient(
+        headers={"Authorization": f"Bearer {MCP_API_KEY}"} if MCP_API_KEY else {},
+        timeout=httpx.Timeout(30.0, read=300.0),
+        follow_redirects=True,
+    ) as http_client:
+        async with streamable_http_client(
+            MCP_SERVER_URL,
+            http_client=http_client,
+        ) as (read, write, _):
 
-    async with streamable_http_client(
-        MCP_SERVER_URL
-    ) as (read, write, _):
+            async with ClientSession(
+                read,
+                write,
+            ) as session:
 
-        async with ClientSession(
-            read,
-            write,
-        ) as session:
+                await session.initialize()
 
-            await session.initialize()
-
-            tools = await session.list_tools()
-
-            print(
-                "\nConnected to MCP server."
-            )
-
-            print("\nAvailable tools:")
-
-            for tool in tools.tools:
+                tools = await session.list_tools()
 
                 print(
-                    f"- {tool.name}: "
-                    f"{tool.description or ''}"
+                    "\nConnected to MCP server."
                 )
 
-            conversation_id = (
-                await create_conversation(
-                    session
-                )
-            )
+                print("\nAvailable tools:")
 
-            if conversation_id is None:
-                return
+                for tool in tools.tools:
 
-            print(
-                "\nCommands:"
-            )
-
-            print(
-                "   :new      Create a new chat"
-            )
-
-            print(
-                "   :chats    List saved chats"
-            )
-
-            print(
-                "   :switch   Switch chat and view history"
-            )
-
-            print(
-                "   :history  View current chat history"
-            )
-
-            print(
-                "   :delete   Delete a saved chat"
-            )
-
-            print(
-                "   :current  Show current chat ID"
-            )
-
-            print(
-                "   :exit     Exit"
-            )
-
-            while True:
-
-                try:
-
-                    question = input(
-                        "\nYou: "
-                    ).strip()
-
-                except (
-                    EOFError,
-                    KeyboardInterrupt,
-                ):
-
-                    print("\nExiting.")
-
-                    break
-
-                if not question:
-                    continue
-
-                if question.lower() in {
-                    "exit",
-                    "quit",
-                    ":exit",
-                }:
-
-                    print("Exiting.")
-
-                    break
-
-                if question == ":new":
-
-                    new_id = (
-                        await create_conversation(
-                            session
-                        )
+                    print(
+                        f"- {tool.name}: "
+                        f"{tool.description or ''}"
                     )
 
-                    if new_id is not None:
-                        conversation_id = new_id
-
-                    continue
-
-                if question == ":chats":
-
-                    await list_conversations(
+                conversation_id = (
+                    await create_conversation(
                         session
                     )
+                )
 
-                    continue
+                if conversation_id is None:
+                    return
 
-                if question == ":switch":
+                print(
+                    "\nCommands:"
+                )
 
-                    new_id = (
-                        await switch_conversation(
+                print(
+                    "   :new      Create a new chat"
+                )
+
+                print(
+                    "   :chats    List saved chats"
+                )
+
+                print(
+                    "   :switch   Switch chat and view history"
+                )
+
+                print(
+                    "   :history  View current chat history"
+                )
+
+                print(
+                    "   :delete   Delete a saved chat"
+                )
+
+                print(
+                    "   :current  Show current chat ID"
+                )
+
+                print(
+                    "   :exit     Exit"
+                )
+
+                while True:
+
+                    try:
+
+                        question = input(
+                            "\nYou: "
+                        ).strip()
+
+                    except (
+                        EOFError,
+                        KeyboardInterrupt,
+                    ):
+
+                        print("\nExiting.")
+
+                        break
+
+                    if not question:
+                        continue
+
+                    if question.lower() in {
+                        "exit",
+                        "quit",
+                        ":exit",
+                    }:
+
+                        print("Exiting.")
+
+                        break
+
+                    if question == ":new":
+
+                        new_id = (
+                            await create_conversation(
+                                session
+                            )
+                        )
+
+                        if new_id is not None:
+                            conversation_id = new_id
+
+                        continue
+
+                    if question == ":chats":
+
+                        await list_conversations(
                             session
                         )
-                    )
 
-                    if new_id is not None:
-                        conversation_id = new_id
+                        continue
 
-                    continue
+                    if question == ":switch":
 
-                if question == ":history":
+                        new_id = (
+                            await switch_conversation(
+                                session
+                            )
+                        )
 
-                    await show_current_history(
-                        session,
-                        conversation_id,
-                    )
+                        if new_id is not None:
+                            conversation_id = new_id
 
-                    continue
+                        continue
 
-                if question == ":delete":
+                    if question == ":history":
 
-                    conversation_id = (
-                        await delete_selected_conversation(
+                        await show_current_history(
                             session,
                             conversation_id,
                         )
-                    )
 
-                    continue
+                        continue
 
-                if question == ":current":
+                    if question == ":delete":
 
-                    print(
-                        "\nCurrent conversation ID:"
-                    )
+                        conversation_id = (
+                            await delete_selected_conversation(
+                                session,
+                                conversation_id,
+                            )
+                        )
 
-                    print(conversation_id)
+                        continue
 
-                    continue
+                    if question == ":current":
 
-                try:
+                        print(
+                            "\nCurrent conversation ID:"
+                        )
 
-                    await call_analyst(
-                        session=session,
-                        conversation_id=conversation_id,
-                        question=question,
-                    )
+                        print(conversation_id)
 
-                except Exception as e:
+                        continue
 
-                    print(
-                        f"\nMCP request failed: {e}"
-                    )
+                    try:
+
+                        await call_analyst(
+                            session=session,
+                            conversation_id=conversation_id,
+                            question=question,
+                        )
+
+                    except Exception as e:
+
+                        print(
+                            f"\nMCP request failed: {e}"
+                        )
 
 
 def main() -> None:

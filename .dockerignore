@@ -1,0 +1,19 @@
+.git
+.gitignore
+.venv
+__pycache__
+*.pyc
+.pytest_cache
+.mypy_cache
+.ruff_cache
+
+.env
+
+# Allow data/schema so Docker copies it into the container
+data/
+!data/schema/
+!data/schema/**
+!data/graph.json
+
+logs/
+.DS_Store
